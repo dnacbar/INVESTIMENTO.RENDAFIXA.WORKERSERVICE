@@ -1,7 +1,7 @@
-using INVESTIMENTO.RENDAFIXA.CRONJOB;
+using INVESTIMENTO.RENDAFIXA.CRONJOB.Worker;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddHostedService<CronJobQueAplicaRendimentoDiario>();
 
 var host = builder.Build();
 host.Run();
