@@ -3,7 +3,6 @@ using Quartz;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-
 builder.Services.Configure<QuartzOptions>(x =>
 {
     x.Scheduling.IgnoreDuplicates = true;

@@ -1,4 +1,6 @@
 ﻿using Quartz;
+using DN.LOG.LIBRARY.MODEL;
+using DN.LOG.LIBRARY.MODEL.ENUM;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
@@ -8,7 +10,15 @@ public class ServicoCronJobQueConsultaEAplicaRendimentoSomenteNaDataAtual(ILogge
 
     public Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation("OK DATA ATUAL");
+        try
+        {
+            throw new Exception("VAI PRA CASA DO RAIO MESMO QUE LÁ VAI SER LEGAL O ROLÊ!");
+        }
+        catch (Exception ex)
+        {
+            ex.CreateLog(_logger, EnumLogLevel.Warning);
+        }
+
         return Task.CompletedTask;
     }
 }
