@@ -1,5 +1,7 @@
 using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 using Quartz;
+using System.Data.SqlClient;
+using System.Data;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -15,16 +17,14 @@ builder.Services.AddQuartz(x =>
     x.SchedulerName = "RendaFixaCronJobName";
 
     var rendimentoDiarioJobKey = new JobKey("rendimentoDiarioJobKey", "aplicaRendimentoGroup");
-    var rendimentoDataAtualJobKey = new JobKey("rendimentoDataAtualJobKey", "aplicaRendimentoGroup");
     var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
 
-    x.AddJob<ServicoCronJobQueConsultaEAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
-    x.AddJob<ServicoCronJobQueConsultaEAplicaRendimentoSomenteNaDataAtual>(x => x.WithIdentity(rendimentoDataAtualJobKey));
-    x.AddJob<ServicoCronJobQueConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
+    x.AddJob<CronJobQueAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
+    x.AddJob<CronJobQueConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
     var verificaSeEstaNoAmbienteDeProducao = builder.Environment.IsProduction();
 
-    var configurationSection = new ConfiguraCronJobAplicaRendimento();
+    var configurationSection = new ConfiguraCronJob();
 
     builder.Configuration.GetSection("ConfiguraCronJobAplicaRendimento").Bind(configurationSection);
 
@@ -34,11 +34,6 @@ builder.Services.AddQuartz(x =>
         .StartNow()
         .WithCronSchedule(configurationSection.Diario));
 
-    x.AddTrigger(x => x
-        .ForJob(rendimentoDataAtualJobKey)
-        .WithIdentity("rendimentoDataAtualJobKey", "aplicaRendimentoGroup")
-        .StartNow()
-        .WithCronSchedule(configurationSection.DataAtual));
 
     x.AddTrigger(x => x
         .ForJob(rendimentoComErroJobKey)
@@ -47,15 +42,16 @@ builder.Services.AddQuartz(x =>
         .WithCronSchedule(configurationSection.Erro));
 });
 
+builder.Services.AddSingleton<IDbConnection>(x => new SqlConnection(builder.Configuration.GetConnectionString("DBRENDAFIXA")));
+
 builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
 
 var host = builder.Build();
 host.Run();
 
 
-class ConfiguraCronJobAplicaRendimento
+class ConfiguraCronJob
 {
     public string Diario { get; set; } = string.Empty;
-    public string DataAtual { get; set; } = string.Empty;
     public string Erro { get; set; } = string.Empty;
 }

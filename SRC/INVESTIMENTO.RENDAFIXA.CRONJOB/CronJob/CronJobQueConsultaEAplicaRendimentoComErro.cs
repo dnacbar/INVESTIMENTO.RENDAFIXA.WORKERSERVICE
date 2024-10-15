@@ -2,7 +2,7 @@
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
-public class ServicoCronJobQueConsultaEAplicaRendimentoComErro : IJob
+public class CronJobQueConsultaEAplicaRendimentoComErro : IJob
 {
     public Task Execute(IJobExecutionContext context)
     {

@@ -2,15 +2,15 @@
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
-public class Movimentacao
+public class Posicao
 {
-    private const int PrimeiroRegistroMovimentacao = 1;
+    private const int PrimeiroRegistroPosicao = 1;
 
-    public Movimentacao(Investimento investimento)
+    public Posicao(Investimento investimento)
     {
         IdInvestimento = investimento.IdInvestimento;
-        IdMovimentacao = PrimeiroRegistroMovimentacao;
-        DtMovimentacao = DateTime.Today;
+        IdPosicao = PrimeiroRegistroPosicao;
+        DtPosicao = DateTime.Today;
         NmValorBrutoTotal = investimento.NmValorInicial;
         NmValorLiquidoTotal = NmValorBrutoTotal;
         NmValorBruto = decimal.Zero;
@@ -19,33 +19,32 @@ public class Movimentacao
         DtCriacao = DateTime.Now;
     }
 
-    public Movimentacao(IEnumerable<MovimentacaoImposto> listaDeMovimentacaoImposto, short idMovimentacao, DateTime dtMovimentacao, decimal nmValorBrutoTotal,
+    public Posicao(Guid idInvestimento, short idPosicao, DateTime dtPosicao, decimal nmValorBrutoTotal,
         decimal nmValorLiquidoTotal, decimal nmValorBruto, decimal nmValorLiquido)
     {
-        ListaDeMovimentacaoImposto = listaDeMovimentacaoImposto;
-
-        IdInvestimento = listaDeMovimentacaoImposto.First().IdInvestimento;
-        IdMovimentacao = idMovimentacao;
-        DtMovimentacao = dtMovimentacao;
+        
+        IdInvestimento = idInvestimento;
+        IdPosicao = idPosicao;
+        DtPosicao = dtPosicao;
         NmValorBrutoTotal = nmValorBrutoTotal;
         NmValorLiquidoTotal = nmValorLiquidoTotal;
         NmValorBruto = nmValorBruto;
         NmValorLiquido = nmValorLiquido;
 
-        ValidaMovimentacao();
+        ValidaPosicao();
     }
 
-    public Movimentacao(Guid idInvestimento, short idMovimentacao)
+    public Posicao(Guid idInvestimento, short idPosicao)
     {
         IdInvestimento = idInvestimento;
-        IdMovimentacao = idMovimentacao;
+        IdPosicao = idPosicao;
     }
 
-    public virtual IEnumerable<MovimentacaoImposto> ListaDeMovimentacaoImposto { get; } = null!;
+    public virtual IEnumerable<PosicaoImposto> ListaDePosicaoImposto { get; } = null!;
 
     public Guid IdInvestimento { get; }
-    public short IdMovimentacao { get; }
-    public DateTime DtMovimentacao { get; }
+    public short IdPosicao { get; }
+    public DateTime DtPosicao { get; }
     public decimal NmValorBrutoTotal { get; }
     public decimal NmValorLiquidoTotal { get; }
     public decimal NmValorBruto { get; }
@@ -57,7 +56,7 @@ public class Movimentacao
 
     public bool VerificaSeValorLiquidoTotalEstaZerado() => NmValorLiquidoTotal == decimal.Zero;
 
-    private void ValidaMovimentacao()
+    private void ValidaPosicao()
     {
         if (!VerificaSeValorBrutoTotalEhMaiorQueOValorLiquidoTotal())
             throw new BadRequestException($"Valor bruto total tem que ser maior que o valor líquido total! Valor bruto total:[{NmValorBruto}] Valor líquido total:[{NmValorLiquido}]");
@@ -75,7 +74,7 @@ public class Movimentacao
             throw new BadRequestException($"Valor bruto total e valor líquido total tem que ser maior que o valor do imposto!");
 
         if (!VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto())
-            throw new BadRequestException($"Valor bruto total e valor líquido total que ser maior que o valor da soma dos impostos! Valor bruto:[{NmValorBruto}] Valor líquido:[{NmValorLiquido}] Valor imposto somado:[{ListaDeMovimentacaoImposto.Sum(x => x.NmValorImposto)}]");
+            throw new BadRequestException($"Valor bruto total e valor líquido total que ser maior que o valor da soma dos impostos! Valor bruto:[{NmValorBruto}] Valor líquido:[{NmValorLiquido}] Valor imposto somado:[{ListaDePosicaoImposto.Sum(x => x.NmValorImposto)}]");
     }
 
     private bool VerificaSeValorBrutoEhMaiorQueOValorLiquido() => NmValorBruto > NmValorLiquido;
@@ -83,9 +82,9 @@ public class Movimentacao
     private bool VerificaSeValorBrutoTotalEhMaiorQueOValorLiquidoTotal() => NmValorBrutoTotal > NmValorLiquidoTotal;
     private bool VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto()
     {
-        var valorImpostoSomado = ListaDeMovimentacaoImposto.Sum(x => x.NmValorImposto);
+        var valorImpostoSomado = ListaDePosicaoImposto.Sum(x => x.NmValorImposto);
         return NmValorBrutoTotal > valorImpostoSomado && NmValorLiquidoTotal > valorImpostoSomado;
     }
-    private bool VerificaSeValoresTotaisSaoMaioresQueOValorImposto() => ListaDeMovimentacaoImposto.All(x => NmValorLiquidoTotal > x.NmValorImposto && NmValorBrutoTotal > x.NmValorImposto);
+    private bool VerificaSeValoresTotaisSaoMaioresQueOValorImposto() => ListaDePosicaoImposto.All(x => NmValorLiquidoTotal > x.NmValorImposto && NmValorBrutoTotal > x.NmValorImposto);
     private bool VerificaSeValorLiquidoTotalEhMaiorQueOValorLiquido() => NmValorLiquidoTotal > NmValorLiquido;
 }

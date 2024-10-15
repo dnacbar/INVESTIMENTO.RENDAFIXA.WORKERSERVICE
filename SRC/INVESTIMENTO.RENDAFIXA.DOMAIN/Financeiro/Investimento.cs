@@ -25,8 +25,8 @@ public class Investimento
 
         TxUsuario = txUsuario;
 
-        Movimentacao = new Movimentacao(this);
-        BoLiquidado = Movimentacao.VerificaSeValorLiquidoTotalEstaZerado();
+        Posicao = new Posicao(this);
+        BoLiquidado = Posicao.VerificaSeValorLiquidoTotalEstaZerado();
     }
 
     public Investimento(Guid idInvestimento, Guid idInvestidor, string txDocumentoFederal, decimal nmValorInicial, decimal nmValorFinal, decimal nmValorImposto,
@@ -49,10 +49,10 @@ public class Investimento
         ValidaInvestimento();
     }
 
-    public Investimento(Movimentacao movimentacao, Guid idInvestidor, string txDocumentoFederal, decimal nmValorInicial, decimal nmValorFinal, decimal nmValorImposto,
+    public Investimento(Posicao posicao, Guid idInvestidor, string txDocumentoFederal, decimal nmValorInicial, decimal nmValorFinal, decimal nmValorImposto,
         decimal nmTaxaRendimento, decimal nmTaxaAdicional, DateTime dtInicial, DateTime dtFinal, byte idIndexador, bool boLiquidado, bool boIsentoImposto)
     {
-        IdInvestimento = movimentacao.IdInvestimento;
+        IdInvestimento = posicao.IdInvestimento;
         IdInvestidor = idInvestidor;
         TxDocumentoFederal = txDocumentoFederal;
         NmValorInicial = nmValorInicial;
@@ -66,14 +66,14 @@ public class Investimento
         BoLiquidado = boLiquidado;
         BoIsentoImposto = boIsentoImposto;
 
-        Movimentacao = movimentacao;
+        Posicao = posicao;
 
-        ValidaInvestimentoMovimentacao();
+        ValidaInvestimentoPosicao();
     }
 
-    public Investimento(Guid idInvestimento, Guid idInvestidor, string txDocumentoFederal, short idMovimentacao)
+    public Investimento(Guid idInvestimento, Guid idInvestidor, string txDocumentoFederal, short idPosicao)
     {
-        Movimentacao = new Movimentacao(idInvestimento, idMovimentacao);
+        Posicao = new Posicao(idInvestimento, idPosicao);
         IdInvestidor = idInvestidor;
         TxDocumentoFederal = txDocumentoFederal;
     }
@@ -85,7 +85,7 @@ public class Investimento
         TxDocumentoFederal = txDocumentoFederal;
     }
 
-    public virtual Movimentacao Movimentacao { get; } = null!;
+    public virtual Posicao Posicao { get; } = null!;
 
     public Guid IdInvestimento { get; }
     public Guid IdInvestidor { get; }
@@ -158,23 +158,23 @@ public class Investimento
         if (!VerificaSeDocumentoEstaValido())
             throw new BadRequestException($"Documento federal que ser uma numeração válida e tamanho valido! Documento federal:[{TxDocumentoFederal}]");
     }
-    private void ValidaInvestimentoMovimentacao()
+    private void ValidaInvestimentoPosicao()
     {
         ValidaInvestimento();
 
         if (!VerificaSeValorFinalEhIgualValorLiquidoTotal())
-            throw new BadRequestException($"Valor final tem que ser igual ao valor líquido total! Valor final:[{NmValorFinal}] Valor líquido total:[{Movimentacao.NmValorLiquidoTotal}]");
+            throw new BadRequestException($"Valor final tem que ser igual ao valor líquido total! Valor final:[{NmValorFinal}] Valor líquido total:[{Posicao.NmValorLiquidoTotal}]");
 
-        if (!VerificaSeDataFinalEhMaiorOuIgualDataMovimentacao())
-            throw new BadRequestException($"Data final tem que ser maior ou igual a data de movimentação! Data final:[{DtFinal}] Data movimentação:[{Movimentacao.DtMovimentacao}]");
+        if (!VerificaSeDataFinalEhMaiorOuIgualDataPosicao())
+            throw new BadRequestException($"Data final tem que ser maior ou igual a data de posição! Data final:[{DtFinal}] Data posição:[{Posicao.DtPosicao}]");
     }
 
     private bool VerificaSeCodigoInvestidorEstaPreenchido() => IdInvestidor != Guid.Empty;
     private bool VerificaSeCodigoInvestimentoEstaPreenchido() => IdInvestimento != Guid.Empty;
-    private bool VerificaSeDataFinalEhMaiorOuIgualDataMovimentacao() => DtFinal >= Movimentacao.DtMovimentacao;
+    private bool VerificaSeDataFinalEhMaiorOuIgualDataPosicao() => DtFinal >= Posicao.DtPosicao;
     private bool VerificaSeDataInvestimentoEstaValida() => DtInicial <= DateTime.Today && DtInicial < DtFinal;
     private bool VerificaSeDocumentoEstaValido() => ulong.TryParse(TxDocumentoFederal, out _) && TxDocumentoFederal.Length == TamanhoDocumentoPessoaFisica || TxDocumentoFederal.Length == TamanhoDocumentoPessoaJuridica;
-    private bool VerificaSeValorFinalEhIgualValorLiquidoTotal() => NmValorFinal == Movimentacao.NmValorLiquidoTotal;
+    private bool VerificaSeValorFinalEhIgualValorLiquidoTotal() => NmValorFinal == Posicao.NmValorLiquidoTotal;
     private bool VerificaSeValorImpostoEstaPositivo() => NmValorImposto >= decimal.Zero;
     private bool VerificaSeValorInicialEhMenorOuIgualValorFinal() => NmValorInicial <= NmValorFinal;
     private bool VerificaSeValorInicialFinalEstaPositivo() => NmValorInicial >= decimal.Zero && NmValorFinal >= decimal.Zero;

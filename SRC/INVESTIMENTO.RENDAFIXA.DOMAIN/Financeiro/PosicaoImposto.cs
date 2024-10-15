@@ -3,34 +3,34 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
-public class MovimentacaoImposto
+public class PosicaoImposto
 {
-    public MovimentacaoImposto(Guid idInvestimento, short idMovimentacao, string txNome, EnumTipoImposto enumTipoImposto, decimal nmValorImposto)
+    public PosicaoImposto(Guid idInvestimento, short idPosicao, string txNome, EnumTipoImposto enumTipoImposto, decimal nmValorImposto)
     {
         IdInvestimento = idInvestimento;
-        IdMovimentacao = idMovimentacao;
+        IdPosicao = idPosicao;
         TxNome = txNome;
         IdImposto = enumTipoImposto;
         NmValorImposto = nmValorImposto;
     }
 
-    public MovimentacaoImposto(Guid idInvestimento, short idMovimentacao, short idImposto, decimal nmValorImposto)
+    public PosicaoImposto(Guid idInvestimento, short idPosicao, short idImposto, decimal nmValorImposto)
     {
         IdInvestimento = idInvestimento;
-        IdMovimentacao = idMovimentacao;
+        IdPosicao = idPosicao;
         IdImposto = (EnumTipoImposto)idImposto;
         NmValorImposto = nmValorImposto;
 
-        ValidaMovimentacaoImposto();
+        ValidaPosicaoImposto();
     }
 
     public Guid IdInvestimento { get; }
-    public short IdMovimentacao { get; }
+    public short IdPosicao { get; }
     public string TxNome { get; } = string.Empty;
     public EnumTipoImposto IdImposto { get; }
     public decimal NmValorImposto { get; }
 
-    private void ValidaMovimentacaoImposto()
+    private void ValidaPosicaoImposto()
     {
         if (!VerificaSeValorImpostoEhPositivo())
             throw new BadRequestException($"Valor imposto tem que ser positivo! Valor imposto:[{NmValorImposto}]");
