@@ -1,71 +1,79 @@
-﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
+﻿using Dapper;
+using DN.LOG.LIBRARY.MODEL.EXCEPTION;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
 using System.Data;
-using Dapper;
+using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
-public class ServicoQueListaInvestimentoSemBloqueio(IDbConnection dbConnection) : IServicoQueListaInvestimentoSemBloqueio
+public class ServicoQueListaInvestimentoSemBloqueio(IDbConnection _dbConnection) : IServicoQueListaInvestimentoSemBloqueio
 {
-    private readonly IDbConnection _dbConnection = dbConnection;
-
-    public Task<IEnumerable<Investimento>> ListaInvestimento()
+    public Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
         var sql = @"USE DBRENDAFIXA
 
                     SELECT I.[ID_INVESTIMENTO]
-                          ,[ID_INVESTIDOR]
-                          ,[TX_DOCUMENTOFEDERAL]
-                          ,[NM_VALORINICIAL]
-                          ,[NM_VALORFINAL]
-                          ,[NM_VALORIMPOSTO]
-                          ,[NM_TAXARENDIMENTO]
-                          ,[NM_TAXAADICIONAL]
-                          ,[DT_INICIAL]
-                          ,[DT_FINAL]
-                          ,[ID_INDEXADOR]
-                          ,[BO_LIQUIDADO]
-                          ,[BO_ISENTOIMPOSTO]
-                    	  ,[ID_POSICAO]
-                          ,[DT_POSICAO]
-                          ,[NM_VALORBRUTOTOTAL]
-                          ,[NM_VALORLIQUIDOTOTAL]
-                          ,[NM_VALORBRUTO]
-                          ,[NM_VALORLIQUIDO]
-                      FROM [INVESTIMENTO] I
-                      LEFT JOIN [POSICAO] P
-                        ON I.ID_INVESTIMENTO = P.ID_INVESTIMENTO
-                     WHERE CAST(GETDATE() AS DATE) <= I.DT_FINAL
-                       AND (CAST(GETDATE() AS DATE) > P.DT_POSICAO OR P.DT_POSICAO IS NULL)";
+                           ,[ID_INVESTIDOR]
+                           ,[TX_DOCUMENTOFEDERAL]
+                           ,[NM_VALORINICIAL]
+                           ,[NM_VALORFINAL]
+                           ,[NM_VALORIMPOSTO]
+                           ,[NM_TAXARENDIMENTO]
+                           ,[NM_TAXAADICIONAL]
+                           ,[DT_INICIAL]
+                           ,[DT_FINAL]
+                           ,IX.[ID_INDEXADOR]
+                      	   ,IX.[NM_RENDIMENTO]
+                           ,[BO_LIQUIDADO]
+                           ,[BO_ISENTOIMPOSTO]
+                       FROM [INVESTIMENTO] I
+                       JOIN [INDEXADOR] IX
+                         ON I.ID_INDEXADOR = IX.ID_INDEXADOR
+                      WHERE CAST(GETDATE() AS DATE) <= I.DT_FINAL";
 
-        return Task.Factory.StartNew(ListaDeInvestimento, sql);
+        return Task.Run(() => ConsultaInvestimento(sql), token);
     }
 
-    public IEnumerable<Investimento> ListaDeInvestimento(object sql)
+    private List<Investimento> ConsultaInvestimento(string sql)
     {
-        using var dReader = _dbConnection.ExecuteReader(sql.ToString());
+        if (_dbConnection.State != ConnectionState.Open)
+            _dbConnection.Open();
 
-        while (dReader.Read())
+        var retorno = new List<Investimento>();
+
+        try
         {
-            yield return new Investimento(new Posicao(Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()),
-                                                      Convert.ToInt16(dReader["ID_POSICAO"]),
-                                                      Convert.ToDateTime(dReader["DT_POSICAO"]),
-                                                      Convert.ToDecimal(dReader["NM_VALORBRUTOTOTAL"]),
-                                                      Convert.ToDecimal(dReader["NM_VALORLIQUIDOTOTAL"]),
-                                                      Convert.ToDecimal(dReader["NM_VALORBRUTO"]),
-                                                      Convert.ToDecimal(dReader["NM_VALORLIQUIDO"])),
-                    Guid.Parse(dReader["ID_INVESTIDOR"].ToString()),
-                    dReader["TX_DOCUMENTOFEDERAL"].ToString(),
-                    Convert.ToDecimal(dReader["NM_VALORINICIAL"]),
-                    Convert.ToDecimal(dReader["NM_VALORFINAL"]),
-                    Convert.ToDecimal(dReader["NM_VALORIMPOSTO"]),
-                    Convert.ToDecimal(dReader["NM_TAXARENDIMENTO"]),
-                    Convert.ToDecimal(dReader["NM_TAXAADICIONAL"]),
-                    Convert.ToDateTime(dReader["DT_INICIAL"]),
-                    Convert.ToDateTime(dReader["DT_FINAL"]),
-                    Convert.ToByte(dReader["ID_INDEXADOR"]),
-                    Convert.ToBoolean(dReader["BO_LIQUIDADO"]),
-                    Convert.ToBoolean(dReader["BO_ISENTOIMPOSTO"]));
+            using var dReader = (DbDataReader)_dbConnection.ExecuteReader(sql);
+
+            if (!dReader.HasRows)
+                throw new NotFoundException("Nenhum investimento foi encontrado!");
+
+            while (dReader.Read())
+                retorno.Add(new Investimento(new Indexador(Convert.ToByte(dReader["ID_INDEXADOR"]),
+                                                           Convert.ToDecimal(dReader["NM_RENDIMENTO"])),
+                       dReader["ID_INVESTIMENTO"] == DBNull.Value ? Guid.Empty : Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),
+                       dReader["ID_INVESTIDOR"] == DBNull.Value ? Guid.Empty : Guid.Parse(dReader["ID_INVESTIDOR"].ToString()!),
+                       dReader["TX_DOCUMENTOFEDERAL"]?.ToString() ?? string.Empty,
+                       Convert.ToDecimal(dReader["NM_VALORINICIAL"]),
+                       Convert.ToDecimal(dReader["NM_VALORFINAL"]),
+                       Convert.ToDecimal(dReader["NM_VALORIMPOSTO"]),
+                       Convert.ToDecimal(dReader["NM_TAXARENDIMENTO"]),
+                       Convert.ToDecimal(dReader["NM_TAXAADICIONAL"]),
+                       Convert.ToDateTime(dReader["DT_INICIAL"]),
+                       Convert.ToDateTime(dReader["DT_FINAL"]),
+                       Convert.ToBoolean(dReader["BO_LIQUIDADO"]),
+                       Convert.ToBoolean(dReader["BO_ISENTOIMPOSTO"])));
+
+            return retorno;
+        }
+        finally
+        {
+            if (_dbConnection.State == ConnectionState.Open)
+                _dbConnection.Close();
         }
     }
 }

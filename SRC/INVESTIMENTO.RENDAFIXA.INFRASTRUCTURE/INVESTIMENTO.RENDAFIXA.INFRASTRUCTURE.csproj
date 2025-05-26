@@ -15,4 +15,8 @@
     <ProjectReference Include="..\INVESTIMENTO.RENDAFIXA.DOMAIN\INVESTIMENTO.RENDAFIXA.DOMAIN.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Imposto\BancoDeDados\Manipula\" />
+  </ItemGroup>
+
 </Project>

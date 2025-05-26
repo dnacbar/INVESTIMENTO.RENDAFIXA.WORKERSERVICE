@@ -1,27 +1,26 @@
 ﻿using DN.LOG.LIBRARY.MODEL.EXCEPTION;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
 public class PosicaoImposto
 {
-    public PosicaoImposto(Guid idInvestimento, short idPosicao, string txNome, EnumTipoImposto enumTipoImposto, decimal nmValorImposto)
+    public PosicaoImposto(Posicao posicao, EnumTipoImposto enumTipoImposto, decimal nmValorImposto)
     {
-        IdInvestimento = idInvestimento;
-        IdPosicao = idPosicao;
-        TxNome = txNome;
+        IdInvestimento = posicao.IdInvestimento;
+        IdPosicao = posicao.IdPosicao;
         IdImposto = enumTipoImposto;
         NmValorImposto = nmValorImposto;
     }
 
-    public PosicaoImposto(Guid idInvestimento, short idPosicao, short idImposto, decimal nmValorImposto)
+    public PosicaoImposto(Guid idInvestimento, short idPosicao, string txNome, EnumTipoImposto idImposto, decimal nmValorImposto)
     {
         IdInvestimento = idInvestimento;
         IdPosicao = idPosicao;
-        IdImposto = (EnumTipoImposto)idImposto;
+        TxNome = txNome;
+        IdImposto = idImposto;
         NmValorImposto = nmValorImposto;
-
-        ValidaPosicaoImposto();
     }
 
     public Guid IdInvestimento { get; }
@@ -30,11 +29,20 @@ public class PosicaoImposto
     public EnumTipoImposto IdImposto { get; }
     public decimal NmValorImposto { get; }
 
-    private void ValidaPosicaoImposto()
+    public static void CalculaImposto(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeImposto)
     {
-        if (!VerificaSeValorImpostoEhPositivo())
-            throw new BadRequestException($"Valor imposto tem que ser positivo! Valor imposto:[{NmValorImposto}]");
-    }
+        PosicaoImposto impostoIrrf;
 
-    private bool VerificaSeValorImpostoEhPositivo() => NmValorImposto > decimal.Zero;
+        if (posicao.Investimento.VerificaSeCalculaIof())
+        {
+            var impostoIof = new PosicaoImposto(posicao, EnumTipoImposto.Iof, posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(listaDeImposto, 1).NmRendimento / 100));
+            impostoIrrf = new PosicaoImposto(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - impostoIof.NmValorImposto) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, 1).NmRendimento / 100));
+            posicao.ListaDePosicaoImposto.Add(impostoIof);
+            posicao.ListaDePosicaoImposto.Add(impostoIrrf);
+            return;
+        }
+
+        impostoIrrf = new PosicaoImposto(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - decimal.Zero) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, 1).NmRendimento / 100));
+        posicao.ListaDePosicaoImposto.Add(impostoIrrf);
+    }
 }

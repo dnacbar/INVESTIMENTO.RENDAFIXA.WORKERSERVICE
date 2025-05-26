@@ -2,4 +2,6 @@
 
 public enum EnumTipoImposto
 {
+    Irrf = 1,
+    Iof
 }

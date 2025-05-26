@@ -2,5 +2,5 @@
 
 public interface IServicoQueListaInvestimentoSemBloqueio
 {
-    Task<IEnumerable<Investimento>> ListaInvestimento();
+    Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token);
 }
