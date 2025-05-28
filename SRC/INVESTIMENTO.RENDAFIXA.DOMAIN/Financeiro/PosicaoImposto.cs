@@ -1,4 +1,4 @@
-﻿using DN.LOG.LIBRARY.MODEL.EXCEPTION;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.DataHora.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
@@ -16,6 +16,8 @@ public class PosicaoImposto
 
     public PosicaoImposto(Guid idInvestimento, short idPosicao, string txNome, EnumTipoImposto idImposto, decimal nmValorImposto)
     {
+        ArgumentException.ThrowIfNullOrEmpty(txNome);
+
         IdInvestimento = idInvestimento;
         IdPosicao = idPosicao;
         TxNome = txNome;
@@ -32,17 +34,18 @@ public class PosicaoImposto
     public static void CalculaImposto(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeImposto)
     {
         PosicaoImposto impostoIrrf;
+        var quantidadeDeDiasUteis =  posicao.Investimento.DtInicial.Date.CalculaDiaUtilEntreDatas(DateTime.Today);
 
         if (posicao.Investimento.VerificaSeCalculaIof())
         {
-            var impostoIof = new PosicaoImposto(posicao, EnumTipoImposto.Iof, posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(listaDeImposto, 1).NmRendimento / 100));
-            impostoIrrf = new PosicaoImposto(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - impostoIof.NmValorImposto) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, 1).NmRendimento / 100));
+            var impostoIof = new PosicaoImposto(posicao, EnumTipoImposto.Iof, posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(listaDeImposto, quantidadeDeDiasUteis).NmRendimento / 100));
+            impostoIrrf = new PosicaoImposto(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - impostoIof.NmValorImposto) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, quantidadeDeDiasUteis).NmRendimento / 100));
             posicao.ListaDePosicaoImposto.Add(impostoIof);
             posicao.ListaDePosicaoImposto.Add(impostoIrrf);
             return;
         }
 
-        impostoIrrf = new PosicaoImposto(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - decimal.Zero) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, 1).NmRendimento / 100));
+        impostoIrrf = new PosicaoImposto(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - decimal.Zero) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, quantidadeDeDiasUteis).NmRendimento / 100));
         posicao.ListaDePosicaoImposto.Add(impostoIrrf);
     }
 }

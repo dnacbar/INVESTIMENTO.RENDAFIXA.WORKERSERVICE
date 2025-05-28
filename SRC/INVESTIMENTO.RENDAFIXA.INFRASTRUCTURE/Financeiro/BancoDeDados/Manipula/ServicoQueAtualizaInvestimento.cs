@@ -5,7 +5,7 @@ using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection) : IServicoQueAtualizaInvestimento
+public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuarioInvestimentoRendaFixaCronJob _usuarioInvestimentoRendaFixaCronJob) : IServicoQueAtualizaInvestimento
 {
     public Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
     {
@@ -15,8 +15,8 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection) : IServ
                     UPDATE [INVESTIMENTO]
                        SET [NM_VALORFINAL] = @NmValorFinal
                           ,[NM_VALORIMPOSTO] = @NmValorImposto
-                          ,[TX_USUARIOATUALIZACAO] = @TxUsuarioAtualizacao
-                          ,[DT_ATUALIZACAO] = @DtAtualizacao
+                          ,[TX_USUARIOATUALIZACAO] = @Usuario
+                          ,[DT_ATUALIZACAO] = GETDATE()
                      WHERE [ID_INVESTIMENTO] = @IdInvestimento
                        AND [ID_INVESTIDOR] = @IdInvestidor";
 
@@ -36,8 +36,7 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection) : IServ
                 investimento.NmValorFinal,
                 investimento.NmValorImposto,
                 investimento.IdInvestidor,
-                investimento.TxUsuarioAtualizacao,
-                investimento.DtAtualizacao
+                _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
         }
         finally

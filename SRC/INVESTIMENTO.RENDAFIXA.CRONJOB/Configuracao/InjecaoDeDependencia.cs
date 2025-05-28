@@ -3,22 +3,45 @@ using INVESTIMENTO.RENDAFIXA.CRONJOB.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
+using System.Text;
 
-namespace INVESTIMENTO.RENDAFIXA.CRONJOB;
+namespace INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
 
 public static class InjecaoDeDependencia
 {
     public static void AdicionaInjecaoDeDependencia(IHostApplicationBuilder builder)
     {
+        var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.CRONJOB");
+
+        const int nativeTagSizeByte = 16;
+        var keyBytes = Convert.FromBase64String("UXGoyfisUfj+1C0k+iK+kgaDnNeB7kWoPmDm0pALKCs=");
+        var nonceBytes = Convert.FromBase64String("XWtpeXD4XCnCqNoy");
+        var tagBytes = Convert.FromBase64String("NpW13DlIyb+6nB+GjQdLbw==");
+        var cipherBytes = Convert.FromBase64String(criptografado);
+        var plainBytes = new byte[cipherBytes.Length];
+        
+        using var aes = new AesGcm(keyBytes, nativeTagSizeByte);
+
+        aes.Decrypt(nonceBytes, cipherBytes, tagBytes, plainBytes);
+
+        var investimentoRendaFixaCronJob = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaCronJob>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
+
+        builder.Services.AddSingleton<IUsuarioInvestimentoRendaFixaCronJob>(x =>
+        {
+            return investimentoRendaFixaCronJob;
+        });
+
         ConfiguraBancoDeDados(builder.Services);
-        ConfiguraDbConnection(builder);
-        ConfiguraQuartz(builder);
+        ConfiguraDbConnection(builder, investimentoRendaFixaCronJob.ConnectionString.DBRENDAFIXA);
+        ConfiguraQuartz(builder, investimentoRendaFixaCronJob.ConfiguraCronJobAplicaRendimento);
         ConfiguraServicoCronJob(builder.Services);
         builder.Services.AddLogging(b => b.AddConsole());
     }
@@ -33,15 +56,15 @@ public static class InjecaoDeDependencia
         //Manipula
         service.AddSingleton<IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento, ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento>();
         service.AddSingleton<IServicoQueAdicionaOuAtualizaPosicaoInvestimento, ServicoQueAdicionaOuAtualizaPosicaoInvestimento>();
-        service.AddSingleton<IServicoQueAtualizaInvestimento, ServicoQueAtualizaInvestimento>();   
+        service.AddSingleton<IServicoQueAtualizaInvestimento, ServicoQueAtualizaInvestimento>();
     }
 
-    public static void ConfiguraDbConnection(IHostApplicationBuilder builder)
+    public static void ConfiguraDbConnection(IHostApplicationBuilder builder, string connectionString)
     {
-        builder.Services.AddSingleton<IDbConnection>(x => new SqlConnection(builder.Configuration.GetConnectionString("DBRENDAFIXA")));
+        builder.Services.AddSingleton<IDbConnection>(x => new SqlConnection(connectionString));
     }
 
-    public static void ConfiguraQuartz(IHostApplicationBuilder builder)
+    public static void ConfiguraQuartz(IHostApplicationBuilder builder, ConfiguraCronJobAplicaRendimento configuraCronJobAplicaRendimento)
     {
         builder.Services.Configure<QuartzOptions>(x =>
         {
@@ -61,22 +84,18 @@ public static class InjecaoDeDependencia
 
             var verificaSeEstaNoAmbienteDeProducao = builder.Environment.IsProduction();
 
-            var configurationSection = new ConfiguraCronJob();
-
-            builder.Configuration.GetSection("ConfiguraCronJobAplicaRendimento").Bind(configurationSection);
-
             x.AddTrigger(x => x
                 .ForJob(rendimentoDiarioJobKey)
                 .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
                 .StartNow()
                 .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
-                //.WithCronSchedule(configurationSection.Diario));
+            //.WithCronSchedule(configurationSection.Diario));
 
             x.AddTrigger(x => x
                 .ForJob(rendimentoComErroJobKey)
                 .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
                 .StartNow()
-                .WithCronSchedule(configurationSection.Erro));
+                .WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
     }

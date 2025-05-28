@@ -4,6 +4,7 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.CRONJOB.Servico;
 using Quartz;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
@@ -39,10 +40,14 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
         {
             ex.CreateLog(_logger, EnumLogLevel.Error);
         }
+        catch(CryptographicException ex)
+        {
+            ex.CreateLog(_logger, EnumLogLevel.Critical);
+            throw;
+        }
         catch (Exception ex)
         {
             ex.CreateLog(_logger, EnumLogLevel.Critical);
-            //throw; // Re-throw after logging to ensure the job is marked as failed
         }
     }
 }

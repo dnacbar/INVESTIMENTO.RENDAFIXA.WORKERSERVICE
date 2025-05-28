@@ -1,4 +1,4 @@
-using INVESTIMENTO.RENDAFIXA.CRONJOB;
+using INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
 
 var builder = Host.CreateApplicationBuilder(args);
 

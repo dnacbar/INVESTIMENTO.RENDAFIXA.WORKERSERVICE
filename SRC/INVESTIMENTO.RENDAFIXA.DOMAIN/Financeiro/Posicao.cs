@@ -11,7 +11,7 @@ public class Posicao
     public Posicao(Investimento investimento, short idPosicao, DateTime dtPosicao, decimal nmValorBrutoTotal, decimal nmValorLiquidoTotal, decimal nmValorBruto, decimal nmValorLiquido)
     {
         IdInvestimento = investimento.IdInvestimento;
-        IdPosicao = idPosicao;
+        IdPosicao = ++idPosicao;
         DtPosicao = dtPosicao;
         NmValorBrutoTotal = nmValorBrutoTotal;
         NmValorLiquidoTotal = nmValorLiquidoTotal;
@@ -83,8 +83,8 @@ public class Posicao
     }
     private void CalculaPosicaoRecorrenteInvestimento(IEnumerable<ConfiguracaoImposto> listaDeImposto)
     {
-        NmValorBruto = Investimento.NmValorInicial * Investimento.CalculaValorTaxaDiaria();
-        NmValorBrutoTotal = Investimento.NmValorInicial + NmValorBruto;
+        NmValorBruto = NmValorBrutoTotal * Investimento.CalculaValorTaxaDiaria();
+        NmValorBrutoTotal = NmValorBrutoTotal + NmValorBruto;
 
         if (Investimento.VerificaSeInvestimentoEhIsentoDeImposto())
         {
@@ -106,7 +106,7 @@ public class Posicao
                 (impostoIrrf?.NmValorImposto ?? 0);
         }
 
-        NmValorLiquidoTotal = Investimento.NmValorInicial + NmValorLiquido;
+        NmValorLiquidoTotal = NmValorLiquidoTotal + NmValorLiquido;
 
         Investimento.AdicionaCalculoPosicaoNoInvestimento(this);
 

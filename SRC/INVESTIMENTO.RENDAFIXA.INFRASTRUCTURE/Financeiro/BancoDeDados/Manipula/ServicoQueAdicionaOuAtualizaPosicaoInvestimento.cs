@@ -5,7 +5,7 @@ using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbConnection) : IServicoQueAdicionaOuAtualizaPosicaoInvestimento
+public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbConnection, IUsuarioInvestimentoRendaFixaCronJob _usuarioInvestimentoRendaFixaCronJob) : IServicoQueAdicionaOuAtualizaPosicaoInvestimento
 {
     public Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {
@@ -28,7 +28,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                           @NmValorLiquidoTotal,
                           @NmValorBruto,
                           @NmValorLiquido,
-                          @TxUsuario,
+                          @Usuario,
                           GETDATE());";
 
         return Task.Run(() => AdicionaPosicaoInvestimento(sql, posicao), token);
@@ -50,7 +50,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                 posicao.NmValorLiquidoTotal,
                 posicao.NmValorBruto,
                 posicao.NmValorLiquido,
-                TxUsuario = "DN",
+                _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
         }
         finally

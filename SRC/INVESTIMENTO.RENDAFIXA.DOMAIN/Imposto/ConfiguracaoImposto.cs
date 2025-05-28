@@ -12,27 +12,22 @@ public class ConfiguracaoImposto(byte idImposto, byte idConfiguracaoImposto, dec
 
 public static class ConfiguracaoImpostoExtension
 {
+
     public static ConfiguracaoImposto ObtemIof(this IEnumerable<ConfiguracaoImposto> listaDeImposto, int posicaoDiaUtil)
     {
-        if (posicaoDiaUtil >= Iof.DiasUteisParaIsencao)
-            return listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Iof)
-                                 .Select(x => new Iof(x.IdImposto, x.IdConfiguracaoImposto, x.NmRendimento, x.NmDiasUteis))
-                                 .Last();
+        var listaDeImpostoFiltrada = listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Iof);
 
-        return listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Iof && x.NmDiasUteis == posicaoDiaUtil)
-                             .Select(x => new Iof(x.IdImposto, x.IdConfiguracaoImposto, x.NmRendimento, x.NmDiasUteis))
-                             .First();
+        return posicaoDiaUtil >= Iof.DiasUteisParaIsencao
+            ? listaDeImpostoFiltrada.MaxBy(x => x.NmDiasUteis) ?? throw new InvalidOperationException($"Configuração de IOF não encontrada.")
+            : listaDeImpostoFiltrada.FirstOrDefault(x => x.NmDiasUteis == posicaoDiaUtil) ?? throw new InvalidOperationException($"Configuração de IOF não encontrada para {posicaoDiaUtil} dias úteis.");
     }
 
     public static ConfiguracaoImposto ObtemIrrf(this IEnumerable<ConfiguracaoImposto> listaDeImposto, int posicaoDiaUtil)
     {
-        if (posicaoDiaUtil >= Irrf.DiasUteisParaMenorAliquota)
-            return listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Irrf)
-                                 .Select(x => new Irrf(x.IdImposto, x.IdConfiguracaoImposto, x.NmRendimento, x.NmDiasUteis))
-                                 .Last();
+        var listaDeImpostoFiltrada = listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Irrf);
 
-        return listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Irrf && posicaoDiaUtil <= x.NmDiasUteis )
-                             .Select(x => new Irrf(x.IdImposto, x.IdConfiguracaoImposto, x.NmRendimento, x.NmDiasUteis))
-                             .First();
+        return posicaoDiaUtil >= Irrf.DiasUteisParaMenorAliquota
+            ? listaDeImpostoFiltrada.MaxBy(x => x.NmDiasUteis) ?? throw new InvalidOperationException("Configuração de IRRF não encontrada")
+            : listaDeImpostoFiltrada.FirstOrDefault(x => posicaoDiaUtil <= x.NmDiasUteis) ?? throw new InvalidOperationException($"Configuração de IRRF não encontrada para {posicaoDiaUtil} dias úteis.");
     }
 }

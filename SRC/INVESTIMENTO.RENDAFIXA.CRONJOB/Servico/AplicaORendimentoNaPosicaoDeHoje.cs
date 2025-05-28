@@ -67,7 +67,7 @@ public class AplicaORendimentoNaPosicaoDeHoje(ILogger<AplicaORendimentoNaPosicao
 
         await posicao.CalculaPosicaoInvestimentoAsync(configuracaoImpostos, token);
 
-        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, 1), TransactionScopeAsyncFlowOption.Enabled);
+        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, 0, 500), TransactionScopeAsyncFlowOption.Enabled);
 
         await _servicoQueAtualizaInvestimentoComRendimento.AtualizaInvestimentoComRendimentoDaPosicaoAsync(investimento, token);
         await _servicoQueAdicionaOuAtualizaPosicaoInvestimento.AdicionaPosicaoInvestimentoAsync(posicao, token);

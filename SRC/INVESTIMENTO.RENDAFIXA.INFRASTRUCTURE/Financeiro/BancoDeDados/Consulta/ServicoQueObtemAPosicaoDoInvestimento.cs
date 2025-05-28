@@ -19,11 +19,11 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
                            ,P.[NM_VALORLIQUIDOTOTAL]
                            ,P.[NM_VALORBRUTO]
                            ,P.[NM_VALORLIQUIDO]
-                    FROM [POSICAO] P
-					JOIN [INVESTIMENTO] I
-					  ON P.ID_INVESTIMENTO = I.ID_INVESTIMENTO
-                    WHERE CAST(P.[DT_POSICAO] AS DATE) <= CAST(GETDATE() AS DATE)
-                      AND P.ID_INVESTIMENTO = @IdInvestimento";
+                      FROM [POSICAO] P
+					  JOIN [INVESTIMENTO] I
+					    ON P.ID_INVESTIMENTO = I.ID_INVESTIMENTO
+                     WHERE CAST(P.[DT_POSICAO] AS DATE) <= CAST(GETDATE() AS DATE)
+                       AND P.ID_INVESTIMENTO = @IdInvestimento";
 
         return Task.Run(() => ConsultaPosicao(sql, investimento), token);
     }

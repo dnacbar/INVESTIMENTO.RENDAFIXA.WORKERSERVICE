@@ -4,5 +4,6 @@ public enum EnumIndexador
 {
     Pre = 1,
     Cdi,
-    Ipca
+    Ipca,
+    Selic
 }

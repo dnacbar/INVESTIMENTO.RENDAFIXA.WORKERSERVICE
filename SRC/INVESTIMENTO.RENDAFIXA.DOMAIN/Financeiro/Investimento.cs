@@ -81,8 +81,6 @@ public class Investimento
     {
         NmValorFinal = posicao.NmValorLiquidoTotal;
         NmValorImposto = posicao.ListaDePosicaoImposto.Sum(x => x.NmValorImposto);
-        TxUsuarioAtualizacao = "DN";
-        DtAtualizacao = DateTime.Now;
     }
 
     public decimal CalculaValorTaxaDiaria() => CalculaValorTaxaAnual() / 36000;
