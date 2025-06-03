@@ -9,7 +9,6 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
 {
     public Task AdicionaPosicaoImpostoInvestimentoAsync(PosicaoImposto posicaoImposto, CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
         var sql = @"USE DBRENDAFIXA
 
                     INSERT POSICAOIMPOSTO

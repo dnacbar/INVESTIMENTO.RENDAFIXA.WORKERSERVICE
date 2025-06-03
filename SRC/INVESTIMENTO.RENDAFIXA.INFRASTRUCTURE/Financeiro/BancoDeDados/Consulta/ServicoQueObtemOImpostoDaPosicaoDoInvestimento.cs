@@ -10,8 +10,6 @@ public class ServicoQueObtemOImpostoDaPosicaoDoInvestimento(IDbConnection _dbCon
 {
     public Task<PosicaoImposto> ObtemImpostoDaPosicaoDoInvestimentoAsync(CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
-
         var sql = @"USE DBRENDAFIXA
 
                     SELECT PI.[ID_INVESTIMENTO]

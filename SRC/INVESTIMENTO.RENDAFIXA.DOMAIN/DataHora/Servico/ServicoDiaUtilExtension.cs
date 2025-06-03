@@ -17,13 +17,11 @@ public static class ServicoDiaUtilExtension
         for (int i = 0; i < diasRestantes; i++)
         {
             if (dataParcial.DayOfWeek != DayOfWeek.Saturday && dataParcial.DayOfWeek != DayOfWeek.Sunday)
-            {
                 diasUteis++;
-            }
+
             dataParcial = dataParcial.AddDays(1);
         }
 
-        return diasUteis;
+        return ++diasUteis;
     }
-
 }

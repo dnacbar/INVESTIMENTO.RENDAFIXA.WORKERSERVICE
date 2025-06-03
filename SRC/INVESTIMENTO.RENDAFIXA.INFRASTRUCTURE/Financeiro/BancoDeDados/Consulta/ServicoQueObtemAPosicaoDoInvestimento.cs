@@ -9,21 +9,20 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
 {
     public Task<Posicao> ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(Investimento investimento, CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
         var sql = @"USE DBRENDAFIXA
 
                     SELECT P.[ID_INVESTIMENTO]
-                           ,P.[ID_POSICAO]
-                           ,P.[DT_POSICAO]
-                           ,P.[NM_VALORBRUTOTOTAL]
-                           ,P.[NM_VALORLIQUIDOTOTAL]
-                           ,P.[NM_VALORBRUTO]
-                           ,P.[NM_VALORLIQUIDO]
+                          ,P.[ID_POSICAO]
+                          ,P.[NM_VALORBRUTOTOTAL]
+                          ,P.[NM_VALORLIQUIDOTOTAL]
+                          ,P.[NM_VALORBRUTO]
+                          ,P.[NM_VALORLIQUIDO]
                       FROM [POSICAO] P
 					  JOIN [INVESTIMENTO] I
 					    ON P.ID_INVESTIMENTO = I.ID_INVESTIMENTO
-                     WHERE CAST(P.[DT_POSICAO] AS DATE) <= CAST(GETDATE() AS DATE)
-                       AND P.ID_INVESTIMENTO = @IdInvestimento";
+                     WHERE P.ID_INVESTIMENTO = @IdInvestimento
+					   AND P.[DT_POSICAO] <= CAST(GETDATE() AS DATE)
+					   AND P.[ID_POSICAO] = (SELECT MAX([ID_POSICAO]) FROM [POSICAO] WHERE [ID_INVESTIMENTO] = @IdInvestimento)";
 
         return Task.Run(() => ConsultaPosicao(sql, investimento), token);
     }
@@ -40,7 +39,6 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
             if (dReader.Read())
                 return new Posicao(investimento,
                     Convert.ToInt16(dReader["ID_POSICAO"]),
-                    Convert.ToDateTime(dReader["DT_POSICAO"]),
                     Convert.ToDecimal(dReader["NM_VALORBRUTOTOTAL"]),
                     Convert.ToDecimal(dReader["NM_VALORLIQUIDOTOTAL"]),
                     Convert.ToDecimal(dReader["NM_VALORBRUTO"]),

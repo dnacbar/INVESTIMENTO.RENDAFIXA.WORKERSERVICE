@@ -12,13 +12,11 @@ public class AplicaORendimentoNaPosicaoDeHoje(ILogger<AplicaORendimentoNaPosicao
     IServicoQueAdicionaOuAtualizaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,
     IServicoQueAtualizaInvestimento _servicoQueAtualizaInvestimentoComRendimento,
     IServicoQueListaConfiguracaoImposto _servicoQueListaConfiguracaoImposto,
-    IServicoQueListaInvestimentoSemBloqueio _servicoQueListaInvestimentoSemBloqueio,
+    IServicoQueListaInvestimento _servicoQueListaInvestimentoSemBloqueio,
     IServicoQueObtemAPosicaoDoInvestimento _servicoQueObtemAPosicaoDoInvestimento)
 {
     public async Task ExecutaAsync(CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
-
         _logger.LogWarning("Iniciando aplicação de rendimento diário - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
 
         var (listaAConfiguracaoDoImposto, listaDeInvestimento) = await ObtemDadosParaProcessamentoAsync(token);

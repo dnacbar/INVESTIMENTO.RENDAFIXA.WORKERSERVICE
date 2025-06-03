@@ -19,20 +19,28 @@ public static class InjecaoDeDependencia
 {
     public static void AdicionaInjecaoDeDependencia(IHostApplicationBuilder builder)
     {
-        var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.CRONJOB");
+        InvestimentoRendaFixaCronJob investimentoRendaFixaCronJob;
+        if (builder.Environment.IsProduction())
+        {
+            var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.CRONJOB");
 
-        const int nativeTagSizeByte = 16;
-        var keyBytes = Convert.FromBase64String("UXGoyfisUfj+1C0k+iK+kgaDnNeB7kWoPmDm0pALKCs=");
-        var nonceBytes = Convert.FromBase64String("XWtpeXD4XCnCqNoy");
-        var tagBytes = Convert.FromBase64String("NpW13DlIyb+6nB+GjQdLbw==");
-        var cipherBytes = Convert.FromBase64String(criptografado);
-        var plainBytes = new byte[cipherBytes.Length];
+            const int nativeTagSizeByte = 16;
+            var keyBytes = Convert.FromBase64String("UXGoyfisUfj+1C0k+iK+kgaDnNeB7kWoPmDm0pALKCs=");
+            var nonceBytes = Convert.FromBase64String("XWtpeXD4XCnCqNoy");
+            var tagBytes = Convert.FromBase64String("NpW13DlIyb+6nB+GjQdLbw==");
+            var cipherBytes = Convert.FromBase64String(criptografado);
+            var plainBytes = new byte[cipherBytes.Length];
+
+            using var aes = new AesGcm(keyBytes, nativeTagSizeByte);
+
+            aes.Decrypt(nonceBytes, cipherBytes, tagBytes, plainBytes);
+
+            investimentoRendaFixaCronJob = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaCronJob>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
+        }
+        else
+            investimentoRendaFixaCronJob = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<InvestimentoRendaFixaCronJob>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
+
         
-        using var aes = new AesGcm(keyBytes, nativeTagSizeByte);
-
-        aes.Decrypt(nonceBytes, cipherBytes, tagBytes, plainBytes);
-
-        var investimentoRendaFixaCronJob = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaCronJob>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
 
         builder.Services.AddSingleton<IUsuarioInvestimentoRendaFixaCronJob>(x =>
         {
@@ -50,7 +58,7 @@ public static class InjecaoDeDependencia
     {
         //Consulta
         service.AddSingleton<IServicoQueListaConfiguracaoImposto, ServicoQueListaConfiguracaoImposto>();
-        service.AddSingleton<IServicoQueListaInvestimentoSemBloqueio, ServicoQueListaInvestimentoSemBloqueio>();
+        service.AddSingleton<IServicoQueListaInvestimento, ServicoQueListaInvestimento>();
         service.AddSingleton<IServicoQueObtemAPosicaoDoInvestimento, ServicoQueObtemAPosicaoDoInvestimento>();
 
         //Manipula

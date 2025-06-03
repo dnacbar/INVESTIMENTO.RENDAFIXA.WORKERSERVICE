@@ -15,17 +15,16 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
     {
         using var scope = _logger.BeginScope("Job {JobId}.", context.FireInstanceId);
         _logger.LogWarning("Iniciando processamento do rendimento diário - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
-
         var stopwatch = Stopwatch.StartNew();
+
         try
         {
+            context.CancellationToken.ThrowIfCancellationRequested();
             await _aplicaRendimentoNaPosicaoDeHoje.ExecutaAsync(context.CancellationToken);
-            stopwatch.Stop();
-            _logger.LogWarning("Processamento concluído em {tempo} segundos. - {data}", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
         }
         catch (NotFoundException ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Information);
+            _logger.LogWarning(ex.Message);
         }
         catch (TaskCanceledException ex)
         {
@@ -40,7 +39,7 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
         {
             ex.CreateLog(_logger, EnumLogLevel.Error);
         }
-        catch(CryptographicException ex)
+        catch (CryptographicException ex)
         {
             ex.CreateLog(_logger, EnumLogLevel.Critical);
             throw;
@@ -48,6 +47,11 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
         catch (Exception ex)
         {
             ex.CreateLog(_logger, EnumLogLevel.Critical);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            _logger.LogWarning("Processamento concluído em {tempo} segundos. - {data}", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
         }
     }
 }

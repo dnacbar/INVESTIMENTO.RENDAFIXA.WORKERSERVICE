@@ -34,7 +34,7 @@ public class PosicaoImposto
     public static void CalculaImposto(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeImposto)
     {
         PosicaoImposto impostoIrrf;
-        var quantidadeDeDiasUteis =  posicao.Investimento.DtInicial.Date.CalculaDiaUtilEntreDatas(DateTime.Today);
+        var quantidadeDeDiasUteis = posicao.Investimento.DtInicial.Date.CalculaDiaUtilEntreDatas(DateTime.Today);
 
         if (posicao.Investimento.VerificaSeCalculaIof())
         {

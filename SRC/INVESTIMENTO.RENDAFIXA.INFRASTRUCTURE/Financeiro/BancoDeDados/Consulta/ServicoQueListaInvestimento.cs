@@ -3,37 +3,43 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
+using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
-public class ServicoQueListaInvestimentoSemBloqueio(IDbConnection _dbConnection) : IServicoQueListaInvestimentoSemBloqueio
+public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServicoQueListaInvestimento
 {
     public Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
         var sql = @"USE DBRENDAFIXA
 
-                    SELECT I.[ID_INVESTIMENTO]
-                           ,[ID_INVESTIDOR]
-                           ,[TX_DOCUMENTOFEDERAL]
-                           ,[NM_VALORINICIAL]
-                           ,[NM_VALORFINAL]
-                           ,[NM_VALORIMPOSTO]
-                           ,[NM_TAXARENDIMENTO]
-                           ,[NM_TAXAADICIONAL]
-                           ,[DT_INICIAL]
-                           ,[DT_FINAL]
-                           ,IX.[ID_INDEXADOR]
-                      	   ,IX.[NM_RENDIMENTO]
-                           ,[BO_LIQUIDADO]
-                           ,[BO_ISENTOIMPOSTO]
-                       FROM [INVESTIMENTO] I
-                       JOIN [INDEXADOR] IX
-                         ON I.ID_INDEXADOR = IX.ID_INDEXADOR
-                      WHERE CAST(GETDATE() AS DATE) <= I.DT_FINAL";
+                    SELECT TOP 100
+	                	   I.[ID_INVESTIMENTO]
+                          ,[ID_INVESTIDOR]
+                          ,[TX_DOCUMENTOFEDERAL]
+                          ,[NM_VALORINICIAL]
+                          ,[NM_VALORFINAL]
+                          ,[NM_VALORIMPOSTO]
+                          ,[NM_TAXARENDIMENTO]
+                          ,[NM_TAXAADICIONAL]
+                          ,[DT_INICIAL]
+                          ,[DT_FINAL]
+                          ,IX.[ID_INDEXADOR]
+                     	  ,IX.[NM_RENDIMENTO]
+                          ,[BO_LIQUIDADO]
+                          ,[BO_ISENTOIMPOSTO]
+	                  FROM [INVESTIMENTO] I
+	                  JOIN [INDEXADOR] IX
+                        ON I.ID_INDEXADOR = IX.ID_INDEXADOR
+	                  LEFT JOIN [POSICAO] P 
+	                    ON I.ID_INVESTIMENTO = P.ID_INVESTIMENTO
+	                   AND CAST(GETDATE() AS DATE) = P.DT_POSICAO
+	                 WHERE CAST(GETDATE() AS DATE) <= I.DT_FINAL 
+	                   AND BO_LIQUIDADO = CAST(0 AS BIT)
+	                   AND P.ID_INVESTIMENTO IS NULL";
 
         return Task.Run(() => ConsultaInvestimento(sql), token);
     }
@@ -50,7 +56,7 @@ public class ServicoQueListaInvestimentoSemBloqueio(IDbConnection _dbConnection)
             using var dReader = (DbDataReader)_dbConnection.ExecuteReader(sql);
 
             if (!dReader.HasRows)
-                throw new NotFoundException("Nenhum investimento foi encontrado!");
+                throw new NotFoundException($"Nenhum investimento encontrado para aplicar rendimento diário!");
 
             while (dReader.Read())
                 retorno.Add(new Investimento(new Indexador(Convert.ToByte(dReader["ID_INDEXADOR"]),

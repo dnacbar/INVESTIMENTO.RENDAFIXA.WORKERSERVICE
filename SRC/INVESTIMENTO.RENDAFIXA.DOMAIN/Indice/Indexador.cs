@@ -6,11 +6,11 @@ public class Indexador
     public Indexador(byte idIndexador, decimal nmRendimento)
     {
         IdIndexador = idIndexador;
-        NmRendimento = nmRendimento;
+        NmPercentagemRendimento = nmRendimento;
     }
 
     public byte IdIndexador { get; }
     public string TxNome { get; } = null!;
     public string? TxDescricao { get; }
-    public decimal NmRendimento { get; }
+    public decimal NmPercentagemRendimento { get; }
 }

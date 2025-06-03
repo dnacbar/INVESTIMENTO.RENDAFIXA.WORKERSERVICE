@@ -9,7 +9,6 @@ public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : I
 {
     public Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
         var sql = @"USE [DBRENDAFIXA]
 
 	                SELECT I.[ID_IMPOSTO]

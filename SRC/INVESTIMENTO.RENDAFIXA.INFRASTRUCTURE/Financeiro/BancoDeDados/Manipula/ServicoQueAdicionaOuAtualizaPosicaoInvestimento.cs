@@ -9,7 +9,6 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
 {
     public Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
         var sql = @"USE DBRENDAFIXA
 
                    INSERT INTO POSICAO ([ID_INVESTIMENTO]

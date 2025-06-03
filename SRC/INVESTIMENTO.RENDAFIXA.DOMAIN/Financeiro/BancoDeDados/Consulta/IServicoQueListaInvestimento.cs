@@ -1,6 +1,6 @@
 ﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 
-public interface IServicoQueListaInvestimentoSemBloqueio
+public interface IServicoQueListaInvestimento
 {
     Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token);
 }

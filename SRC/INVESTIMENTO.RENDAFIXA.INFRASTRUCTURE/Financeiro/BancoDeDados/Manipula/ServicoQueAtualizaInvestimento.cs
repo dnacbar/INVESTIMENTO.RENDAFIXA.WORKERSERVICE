@@ -9,12 +9,12 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuari
 {
     public Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
         var sql = @"USE DBRENDAFIXA
 
                     UPDATE [INVESTIMENTO]
                        SET [NM_VALORFINAL] = @NmValorFinal
                           ,[NM_VALORIMPOSTO] = @NmValorImposto
+                          ,[BO_LIQUIDADO] = @BoLiquidado
                           ,[TX_USUARIOATUALIZACAO] = @Usuario
                           ,[DT_ATUALIZACAO] = GETDATE()
                      WHERE [ID_INVESTIMENTO] = @IdInvestimento
@@ -35,6 +35,7 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuari
                 investimento.IdInvestimento,
                 investimento.NmValorFinal,
                 investimento.NmValorImposto,
+                investimento.BoLiquidado,
                 investimento.IdInvestidor,
                 _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
