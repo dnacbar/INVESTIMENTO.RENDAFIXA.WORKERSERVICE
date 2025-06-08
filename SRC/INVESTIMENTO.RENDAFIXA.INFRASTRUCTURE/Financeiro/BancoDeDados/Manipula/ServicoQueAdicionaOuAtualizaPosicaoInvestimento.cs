@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using System.Data;
@@ -51,6 +52,10 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                 posicao.NmValorLiquido,
                 _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
+        }
+        catch (Exception ex)
+        {
+            throw new DataBaseException($"Erro ao adicionar a posição do investimento: [{posicao.IdInvestimento}]!", ex);
         }
         finally
         {

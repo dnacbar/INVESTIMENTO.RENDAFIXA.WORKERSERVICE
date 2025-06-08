@@ -48,7 +48,7 @@ public class Posicao
         DtPosicao = DateTime.Today;
     }
 
-    public ICollection<PosicaoImposto> ListaDePosicaoImposto { get; set; } = [];
+    public ICollection<ImpostoPosicao> ListaDePosicaoImposto { get; set; } = [];
     public Investimento Investimento { get; } = null!;
 
     public Guid IdInvestimento { get; }
@@ -72,8 +72,7 @@ public class Posicao
     /// <returns>Task representando a operação assíncrona de cálculo</returns>
     /// <exception cref="OperationCanceledException">Lançada quando a operação é cancelada</exception>
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula ou quando as validações falham</exception>
-    public Task CalculaPosicaoInvestimentoAsync(IEnumerable<ConfiguracaoImposto> listaDeImposto, CancellationToken token) =>
-        Task.Run(() => { token.ThrowIfCancellationRequested(); VerificaSeCalculaPosicaoInicialOuRecorrente(listaDeImposto); }, token);
+    public Task CalculaPosicaoInvestimentoAsync(IEnumerable<ConfiguracaoImposto> listaDeImposto, CancellationToken token) => Task.Run(() => { VerificaSeCalculaPosicaoInicialOuRecorrente(listaDeImposto); }, token);
     /// <summary>
     /// Verifica se o valor líquido total da posição está zerado.
     /// </summary>
@@ -100,10 +99,10 @@ public class Posicao
             if (listaDeImposto == null)
                 throw new DomainException($"Lista de configuração de imposto tem que ser preenchida!");
 
-            PosicaoImposto.CalculaImposto(this, listaDeImposto);
+            ImpostoPosicao.CalculaImposto(this, listaDeImposto);
 
-            var impostoIof = ListaDePosicaoImposto.FirstOrDefault(x => x.IdImposto == EnumTipoImposto.Iof);
-            var impostoIrrf = ListaDePosicaoImposto.FirstOrDefault(x => x.IdImposto == EnumTipoImposto.Irrf);
+            var impostoIof = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Iof);
+            var impostoIrrf = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Irrf);
 
             NmValorLiquido = NmValorBruto - (impostoIof?.NmValorImposto ?? 0) - (impostoIrrf?.NmValorImposto ?? 0);
         }
@@ -114,7 +113,7 @@ public class Posicao
 
         ValidaPosicaoInvestimento();
     }
-    
+
     /// <summary>
     /// Calcula a posição recorrente do investimento, atualizando valores e aplicando impostos quando aplicável.
     /// </summary>
@@ -135,10 +134,10 @@ public class Posicao
             if (listaDeImposto == null)
                 throw new DomainException($"Lista de configuração de imposto tem que ser preenchida!");
 
-            PosicaoImposto.CalculaImposto(this, listaDeImposto);
+            ImpostoPosicao.CalculaImposto(this, listaDeImposto);
 
-            var impostoIof = ListaDePosicaoImposto.FirstOrDefault(x => x.IdImposto == EnumTipoImposto.Iof);
-            var impostoIrrf = ListaDePosicaoImposto.FirstOrDefault(x => x.IdImposto == EnumTipoImposto.Irrf);
+            var impostoIof = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Iof);
+            var impostoIrrf = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Irrf);
 
             NmValorLiquido = NmValorBruto -
                 (impostoIof?.NmValorImposto ?? 0) -
@@ -151,7 +150,7 @@ public class Posicao
 
         ValidaPosicaoInvestimento();
     }
-    
+
     /// <summary>
     /// Valida os valores da posição, garantindo que as relações entre valores brutos e líquidos estejam corretas.
     /// </summary>
@@ -176,7 +175,7 @@ public class Posicao
         if (!VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto())
             throw new DomainException($"Valor bruto total e valor líquido total que ser maior que o valor da soma dos impostos! Valor bruto:[{NmValorBruto}] Valor líquido:[{NmValorLiquido}] Valor imposto somado:[{ListaDePosicaoImposto.Sum(x => x.NmValorImposto)}]");
     }
-    
+
     /// <summary>
     /// Valida a posição do investimento, incluindo validações de valores e datas.
     /// </summary>
@@ -188,7 +187,7 @@ public class Posicao
         if (!VerificaSeDataFinalEhMaiorOuIgualDataPosicao())
             throw new DomainException($"Data final tem que ser maior ou igual a data de posição! Data final:[{Investimento.DtFinal}] Data posição:[{DtPosicao}]");
     }
-    
+
     /// <summary>
     /// Determina e executa o cálculo apropriado da posição (inicial ou recorrente).
     /// </summary>
@@ -203,37 +202,37 @@ public class Posicao
 
         CalculaPosicaoInicialInvestimento(listaDeImposto);
     }
-    
+
     /// <summary>
     /// Verifica se a posição atual já possui uma posição inicial.
     /// </summary>
     /// <returns>True se o ID da posição é maior que zero, False caso contrário</returns>
     private bool VerificaSePossuiPosicaoInicial() => IdPosicao > decimal.One;
-    
+
     /// <summary>
     /// Verifica se o valor bruto é maior que o valor líquido.
     /// </summary>
     /// <returns>True se o valor bruto é maior que o valor líquido, False caso contrário</returns>
     private bool VerificaSeValorBrutoEhMaiorQueOValorLiquido() => NmValorBruto > NmValorLiquido;
-    
+
     /// <summary>
     /// Verifica se o valor bruto total é maior que o valor bruto.
     /// </summary>
     /// <returns>True se o valor bruto total é maior que o valor bruto, False caso contrário</returns>
     private bool VerificaSeValorBrutoTotalEhMaiorQueOValorBruto() => NmValorBrutoTotal > NmValorBruto;
-    
+
     /// <summary>
     /// Verifica se o valor bruto total é maior que o valor líquido total.
     /// </summary>
     /// <returns>True se o valor bruto total é maior que o valor líquido total, False caso contrário</returns>
     private bool VerificaSeValorBrutoTotalEhMaiorQueOValorLiquidoTotal() => NmValorBrutoTotal > NmValorLiquidoTotal;
-    
+
     /// <summary>
     /// Verifica se a data final do investimento é maior ou igual à data da posição.
     /// </summary>
     /// <returns>True se a data final é maior ou igual à data da posição, False caso contrário</returns>
     private bool VerificaSeDataFinalEhMaiorOuIgualDataPosicao() => Investimento.DtFinal >= DtPosicao;
-    
+
     /// <summary>
     /// Verifica se os valores totais são maiores que a soma dos valores de impostos.
     /// </summary>

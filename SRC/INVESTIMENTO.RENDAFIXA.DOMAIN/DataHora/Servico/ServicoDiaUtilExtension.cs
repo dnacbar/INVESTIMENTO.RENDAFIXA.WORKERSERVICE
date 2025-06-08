@@ -6,7 +6,7 @@ public static class ServicoDiaUtilExtension
     {
         if (dataInicial > dataFinal)
             throw new ArgumentException("A data inicial não pode ser maior que a data final.");
-
+    
         int totalDias = (dataFinal - dataInicial).Days + 1;
         int semanasCompletas = totalDias / 7;
         int diasUteis = semanasCompletas * 5;
@@ -22,6 +22,6 @@ public static class ServicoDiaUtilExtension
             dataParcial = dataParcial.AddDays(1);
         }
 
-        return ++diasUteis;
+        return diasUteis;
     }
 }

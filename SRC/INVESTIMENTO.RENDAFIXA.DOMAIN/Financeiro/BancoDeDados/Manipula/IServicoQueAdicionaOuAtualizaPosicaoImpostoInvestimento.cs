@@ -2,5 +2,5 @@
 
 public interface IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento
 {
-    Task AdicionaPosicaoImpostoInvestimentoAsync(PosicaoImposto posicaoImposto, CancellationToken token);
+    Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token);
 }

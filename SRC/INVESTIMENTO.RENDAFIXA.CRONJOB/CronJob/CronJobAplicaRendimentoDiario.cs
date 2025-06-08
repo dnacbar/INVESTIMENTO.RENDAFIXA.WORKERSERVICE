@@ -13,40 +13,39 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
 {
     public async Task Execute(IJobExecutionContext context)
     {
-        using var scope = _logger.BeginScope("Job {JobId}.", context.FireInstanceId);
-        _logger.LogWarning("Iniciando processamento do rendimento diário - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+        context.CancellationToken.ThrowIfCancellationRequested();
         var stopwatch = Stopwatch.StartNew();
-
         try
         {
-            context.CancellationToken.ThrowIfCancellationRequested();
+            using var scope = _logger.BeginScope("Job {JobId}.", context.FireInstanceId);
+            _logger.LogWarning("Iniciando processamento do rendimento diário - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+
             await _aplicaRendimentoNaPosicaoDeHoje.ExecutaAsync(context.CancellationToken);
-        }
-        catch (NotFoundException ex)
-        {
-            _logger.LogWarning(ex.Message);
         }
         catch (TaskCanceledException ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Warning);
+            ex.CreateLog(_logger, EnumLogLevel.Warning, new System.Net.IPAddress(1));
         }
-        catch (AggregateException ex)
+        catch (NotFoundException ex)
         {
-            foreach (var innerEx in ex.Flatten().InnerExceptions)
-                innerEx.CreateLog(_logger, EnumLogLevel.Error);
+            ex.CreateLog(_logger, EnumLogLevel.Warning, new System.Net.IPAddress(1));
         }
-        catch (InvalidOperationException ex)
+        catch (DataBaseException ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Error);
+            ex.CreateLog(_logger, EnumLogLevel.Error, new System.Net.IPAddress(1));
+        }
+        catch (DomainException ex)
+        {
+            ex.CreateLog(_logger, EnumLogLevel.Error, new System.Net.IPAddress(1));
         }
         catch (CryptographicException ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Critical);
+            ex.CreateLog(_logger, EnumLogLevel.Critical, new System.Net.IPAddress(1));
             throw;
         }
         catch (Exception ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Critical);
+            ex.CreateLog(_logger, EnumLogLevel.Critical, new System.Net.IPAddress(1));
         }
         finally
         {

@@ -2,6 +2,6 @@
 {
     public interface IServicoQueObtemOImpostoDaPosicaoDoInvestimento
     {
-        Task<PosicaoImposto> ObtemImpostoDaPosicaoDoInvestimentoAsync(CancellationToken token);
+        Task<ImpostoPosicao> ObtemImpostoDaPosicaoDoInvestimentoAsync(CancellationToken token);
     }
 }

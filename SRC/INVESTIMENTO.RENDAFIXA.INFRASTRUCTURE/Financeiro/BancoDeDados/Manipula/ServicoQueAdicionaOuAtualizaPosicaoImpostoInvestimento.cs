@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using System.Data;
@@ -7,7 +8,7 @@ namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula
 
 public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnection _dbConnection) : IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento
 {
-    public Task AdicionaPosicaoImpostoInvestimentoAsync(PosicaoImposto posicaoImposto, CancellationToken token)
+    public Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
     {
         var sql = @"USE DBRENDAFIXA
 
@@ -24,7 +25,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
         return Task.Run(() => AdicionaPosicaoImpostoInvestimento(sql, posicaoImposto), token);
     }
 
-    public void AdicionaPosicaoImpostoInvestimento(string sql, PosicaoImposto posicaoImposto)
+    public void AdicionaPosicaoImpostoInvestimento(string sql, ImpostoPosicao posicaoImposto)
     {
         if (_dbConnection.State != ConnectionState.Open)
             _dbConnection.Open();
@@ -35,9 +36,13 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
             {
                 posicaoImposto.IdInvestimento,
                 posicaoImposto.IdPosicao,
-                IdImposto = (byte)posicaoImposto.IdImposto,
+                IdImposto = (byte)posicaoImposto.IdTipoImposto,
                 posicaoImposto.NmValorImposto
             });
+        }
+        catch (Exception ex)
+        {
+            throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.IdInvestimento}]!", ex);
         }
         finally
         {

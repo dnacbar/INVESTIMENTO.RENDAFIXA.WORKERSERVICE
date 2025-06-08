@@ -1,12 +1,11 @@
 ﻿using Dapper;
+using DN.HELPER.LIBRARY.EXTENSION;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
-using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
@@ -21,7 +20,7 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
                           ,[ID_INVESTIDOR]
                           ,[TX_DOCUMENTOFEDERAL]
                           ,[NM_VALORINICIAL]
-                          ,[NM_VALORFINAL]
+                          ,[NM_VALORFINAL]  
                           ,[NM_VALORIMPOSTO]
                           ,[NM_TAXARENDIMENTO]
                           ,[NM_TAXAADICIONAL]
@@ -56,14 +55,14 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
             using var dReader = (DbDataReader)_dbConnection.ExecuteReader(sql);
 
             if (!dReader.HasRows)
-                throw new NotFoundException($"Nenhum investimento encontrado para aplicar rendimento diário!");
+                throw new NotFoundException($"Nenhum investimento foi encontrado para aplicar rendimento diário!");
 
             while (dReader.Read())
                 retorno.Add(new Investimento(new Indexador(Convert.ToByte(dReader["ID_INDEXADOR"]),
                                                            Convert.ToDecimal(dReader["NM_RENDIMENTO"])),
-                       dReader["ID_INVESTIMENTO"] == DBNull.Value ? Guid.Empty : Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),
-                       dReader["ID_INVESTIDOR"] == DBNull.Value ? Guid.Empty : Guid.Parse(dReader["ID_INVESTIDOR"].ToString()!),
-                       dReader["TX_DOCUMENTOFEDERAL"]?.ToString() ?? string.Empty,
+                       Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),
+                       Guid.Parse(dReader["ID_INVESTIDOR"].ToString()!),
+                       dReader["TX_DOCUMENTOFEDERAL"].ToString()!,
                        Convert.ToDecimal(dReader["NM_VALORINICIAL"]),
                        Convert.ToDecimal(dReader["NM_VALORFINAL"]),
                        Convert.ToDecimal(dReader["NM_VALORIMPOSTO"]),
@@ -75,6 +74,10 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
                        Convert.ToBoolean(dReader["BO_ISENTOIMPOSTO"])));
 
             return retorno;
+        }
+        catch (Exception ex) when (ex is not NotFoundException)
+        {
+            throw new DataBaseException("Erro ao consultar investimentos para aplicar rendimento diário.", ex);
         }
         finally
         {

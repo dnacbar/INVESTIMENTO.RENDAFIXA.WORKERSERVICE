@@ -15,7 +15,7 @@ public class ConsultaOIndexadorDaTaxa (ILogger<ConsultaOIndexadorDaTaxa> _logger
         }
         catch (Exception ex)
         {
-            LogObjectExtension.CreateLog(ex, _logger, EnumLogLevel.Error);
+            LogObjectExtension.CreateLog(ex, _logger, EnumLogLevel.Error, new System.Net.IPAddress(1));
             return [];
         }
     }

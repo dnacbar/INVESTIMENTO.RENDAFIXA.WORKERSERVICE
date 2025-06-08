@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using System.Data;
@@ -44,7 +45,11 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
                     Convert.ToDecimal(dReader["NM_VALORBRUTO"]),
                     Convert.ToDecimal(dReader["NM_VALORLIQUIDO"]));
 
-            return new Posicao(investimento);
+            throw new NotFoundException($"Nenhuma posição foi encontrada para aplicar rendimento diário! Investimento: [{investimento.IdInvestimento}]!");
+        }
+        catch (Exception ex) when (ex is not NotFoundException)
+        {
+            throw new DataBaseException($"Erro ao consultar a posição do investimento: [{investimento.IdInvestimento}]!", ex);
         }
         finally
         {

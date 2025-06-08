@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using System.Data;
@@ -39,6 +40,10 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuari
                 investimento.IdInvestidor,
                 _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
+        }
+        catch (Exception ex) 
+        {
+            throw new DataBaseException($"Erro ao atualizar o investimento: [{investimento.IdInvestimento}]!", ex);
         }
         finally
         {
