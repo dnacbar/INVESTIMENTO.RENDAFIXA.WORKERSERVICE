@@ -45,9 +45,9 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
                     Convert.ToDecimal(dReader["NM_VALORBRUTO"]),
                     Convert.ToDecimal(dReader["NM_VALORLIQUIDO"]));
 
-            throw new NotFoundException($"Nenhuma posição foi encontrada para aplicar rendimento diário! Investimento: [{investimento.IdInvestimento}]!");
+             return new Posicao(investimento);
         }
-        catch (Exception ex) when (ex is not NotFoundException || ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao consultar a posição do investimento: [{investimento.IdInvestimento}]!");
         }
