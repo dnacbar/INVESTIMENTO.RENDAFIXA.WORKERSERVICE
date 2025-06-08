@@ -28,7 +28,7 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
         }
         catch (NotFoundException ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Warning, new System.Net.IPAddress(1));
+            _logger.LogWarning(ex.Message);
         }
         catch (DataBaseException ex)
         {

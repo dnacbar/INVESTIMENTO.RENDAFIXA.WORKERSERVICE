@@ -53,7 +53,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                 _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao adicionar a posição do investimento: [{posicao.IdInvestimento}]!", ex);
         }

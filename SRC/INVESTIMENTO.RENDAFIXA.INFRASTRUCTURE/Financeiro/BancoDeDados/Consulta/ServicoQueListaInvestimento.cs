@@ -75,7 +75,7 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
 
             return retorno;
         }
-        catch (Exception ex) when (ex is not NotFoundException)
+        catch (Exception ex) when (ex is not NotFoundException || ex is not OperationCanceledException)
         {
             throw new DataBaseException("Erro ao consultar investimentos para aplicar rendimento diário.", ex);
         }

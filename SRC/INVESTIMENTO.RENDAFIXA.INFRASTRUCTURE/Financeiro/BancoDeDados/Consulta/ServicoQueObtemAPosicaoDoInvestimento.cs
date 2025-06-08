@@ -47,9 +47,9 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
 
             throw new NotFoundException($"Nenhuma posição foi encontrada para aplicar rendimento diário! Investimento: [{investimento.IdInvestimento}]!");
         }
-        catch (Exception ex) when (ex is not NotFoundException)
+        catch (Exception ex) when (ex is not NotFoundException || ex is not OperationCanceledException)
         {
-            throw new DataBaseException($"Erro ao consultar a posição do investimento: [{investimento.IdInvestimento}]!", ex);
+            throw new DataBaseException($"Erro ao consultar a posição do investimento: [{investimento.IdInvestimento}]!");
         }
         finally
         {

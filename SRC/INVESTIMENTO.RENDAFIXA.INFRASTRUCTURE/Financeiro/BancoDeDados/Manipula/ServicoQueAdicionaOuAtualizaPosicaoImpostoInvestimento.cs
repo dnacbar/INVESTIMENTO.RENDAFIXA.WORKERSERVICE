@@ -40,7 +40,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
                 posicaoImposto.NmValorImposto
             });
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.IdInvestimento}]!", ex);
         }

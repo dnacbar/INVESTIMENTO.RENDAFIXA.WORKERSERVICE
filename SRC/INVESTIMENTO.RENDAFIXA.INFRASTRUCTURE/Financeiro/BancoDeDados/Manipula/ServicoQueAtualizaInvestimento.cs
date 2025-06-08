@@ -41,7 +41,7 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuari
                 _usuarioInvestimentoRendaFixaCronJob.Usuario
             });
         }
-        catch (Exception ex) 
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao atualizar o investimento: [{investimento.IdInvestimento}]!", ex);
         }
