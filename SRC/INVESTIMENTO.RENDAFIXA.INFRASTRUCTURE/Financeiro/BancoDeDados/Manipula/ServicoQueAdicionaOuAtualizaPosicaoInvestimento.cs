@@ -10,6 +10,18 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
 {
     public Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {
+        var parametros = new
+        {
+            posicao.IdInvestimento,
+            posicao.IdPosicao,
+            posicao.DtPosicao,
+            posicao.NmValorBrutoTotal,
+            posicao.NmValorLiquidoTotal,
+            posicao.NmValorBruto,
+            posicao.NmValorLiquido,
+            _usuarioInvestimentoRendaFixaCronJob.Usuario
+        };
+
         var sql = @"USE DBRENDAFIXA
 
                    INSERT INTO POSICAO ([ID_INVESTIMENTO]
@@ -19,7 +31,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                           ,[NM_VALORLIQUIDOTOTAL]
                           ,[NM_VALORBRUTO]
                           ,[NM_VALORLIQUIDO]
-                          ,[TX_USUARIO]
+                          ,[TX_USUARIO] 
                           ,[DT_CRIACAO])
                    VALUES (@IdInvestimento,
                           @IdPosicao,
@@ -31,27 +43,12 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                           @Usuario,
                           GETDATE());";
 
-        return Task.Run(() => AdicionaPosicaoInvestimento(sql, posicao), token);
-    }
-
-    private void AdicionaPosicaoInvestimento(string sql, Posicao posicao)
-    {
         if (_dbConnection.State != ConnectionState.Open)
             _dbConnection.Open();
 
         try
         {
-            _dbConnection.Execute(sql, new
-            {
-                posicao.IdInvestimento,
-                posicao.IdPosicao,
-                posicao.DtPosicao,
-                posicao.NmValorBrutoTotal,
-                posicao.NmValorLiquidoTotal,
-                posicao.NmValorBruto,
-                posicao.NmValorLiquido,
-                _usuarioInvestimentoRendaFixaCronJob.Usuario
-            });
+            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

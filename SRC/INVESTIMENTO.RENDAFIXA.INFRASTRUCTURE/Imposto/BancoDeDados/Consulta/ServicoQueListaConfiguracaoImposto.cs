@@ -1,13 +1,14 @@
-﻿using Dapper;
+﻿    using Dapper;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using System.Data;
+using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 
 public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : IServicoQueListaConfiguracaoImposto
 {
-    public Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
+    public async Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {
         var sql = @"USE [DBRENDAFIXA]
 
@@ -19,24 +20,23 @@ public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : I
 	                 INNER JOIN [CONFIGURACAOIMPOSTO] CI
 	                    ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
 
-        return Task.Run(() => ConsultaConfiguracaoImposto(sql), token);
-    }
-
-    private List<ConfiguracaoImposto> ConsultaConfiguracaoImposto(string sql)
-    {
         if (_dbConnection.State != ConnectionState.Open)
             _dbConnection.Open();
-
-        var retorno = new List<ConfiguracaoImposto>();
         try
         {
-            using var dReader = _dbConnection.ExecuteReader(sql);
+            using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
 
-            while (dReader.Read())
-                retorno.Add(new ConfiguracaoImposto(Convert.ToByte(dReader["ID_IMPOSTO"]),
-                                                     Convert.ToByte(dReader["ID_CONFIGURACAOIMPOSTO"]),
-                                                     Convert.ToDecimal(dReader["NM_RENDIMENTO"]),
-                                                     Convert.ToInt16(dReader["NM_DIASUTEIS"])));
+            var retorno = new List<ConfiguracaoImposto>();
+
+            while (await dReader.ReadAsync(token))
+            {
+                retorno.Add(new ConfiguracaoImposto(
+                    Convert.ToByte(dReader["ID_IMPOSTO"]),
+                    Convert.ToByte(dReader["ID_CONFIGURACAOIMPOSTO"]),
+                    Convert.ToDecimal(dReader["NM_RENDIMENTO"]),
+                    Convert.ToInt16(dReader["NM_DIASUTEIS"])
+                ));
+            }
 
             return retorno;
         }

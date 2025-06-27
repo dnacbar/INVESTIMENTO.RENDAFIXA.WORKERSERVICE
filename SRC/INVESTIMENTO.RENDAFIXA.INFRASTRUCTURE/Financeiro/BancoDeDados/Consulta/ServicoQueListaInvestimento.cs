@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using DN.HELPER.LIBRARY.EXTENSION;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
@@ -11,11 +10,11 @@ namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta
 
 public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServicoQueListaInvestimento
 {
-    public Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token)
+    public async Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token)
     {
         var sql = @"USE DBRENDAFIXA
 
-                    SELECT TOP 100
+                    SELECT TOP 100  
 	                	   I.[ID_INVESTIMENTO]
                           ,[ID_INVESTIDOR]
                           ,[TX_DOCUMENTOFEDERAL]
@@ -40,24 +39,19 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
 	                   AND BO_LIQUIDADO = CAST(0 AS BIT)
 	                   AND P.ID_INVESTIMENTO IS NULL";
 
-        return Task.Run(() => ConsultaInvestimento(sql), token);
-    }
-
-    private List<Investimento> ConsultaInvestimento(string sql)
-    {
         if (_dbConnection.State != ConnectionState.Open)
             _dbConnection.Open();
 
-        var retorno = new List<Investimento>();
-
         try
         {
-            using var dReader = (DbDataReader)_dbConnection.ExecuteReader(sql);
+            using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
 
             if (!dReader.HasRows)
                 throw new NotFoundException($"Nenhum investimento foi encontrado para aplicar rendimento diário!");
 
-            while (dReader.Read())
+            var retorno = new List<Investimento>();
+
+            while (await dReader.ReadAsync(token))
                 retorno.Add(new Investimento(new Indexador(Convert.ToByte(dReader["ID_INDEXADOR"]),
                                                            Convert.ToDecimal(dReader["NM_RENDIMENTO"])),
                        Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),

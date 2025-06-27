@@ -10,6 +10,14 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
 {
     public Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
     {
+        var listaDeParametro = new
+        {
+            posicaoImposto.IdInvestimento,
+            posicaoImposto.IdPosicao,
+            IdImposto = (byte)posicaoImposto.IdTipoImposto,
+            posicaoImposto.NmValorImposto
+        };
+
         var sql = @"USE DBRENDAFIXA
 
                     INSERT POSICAOIMPOSTO
@@ -22,23 +30,12 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
                            @IdImposto,
                            @NmValorImposto);";
 
-        return Task.Run(() => AdicionaPosicaoImpostoInvestimento(sql, posicaoImposto), token);
-    }
-
-    public void AdicionaPosicaoImpostoInvestimento(string sql, ImpostoPosicao posicaoImposto)
-    {
         if (_dbConnection.State != ConnectionState.Open)
             _dbConnection.Open();
 
         try
         {
-            _dbConnection.Execute(sql, new
-            {
-                posicaoImposto.IdInvestimento,
-                posicaoImposto.IdPosicao,
-                IdImposto = (byte)posicaoImposto.IdTipoImposto,
-                posicaoImposto.NmValorImposto
-            });
+            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
