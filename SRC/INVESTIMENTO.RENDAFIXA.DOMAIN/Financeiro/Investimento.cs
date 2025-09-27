@@ -114,14 +114,14 @@ public class Investimento
     public void AdicionaCalculoPosicaoNoInvestimento(Posicao posicao)
     {
         NmValorFinal = posicao.NmValorLiquidoTotal;
-        NmValorImposto = posicao.ListaDePosicaoImposto.Sum(x => x.NmValorImposto);
+        NmValorImposto = posicao.ImpostoPosicao.NmValorImpostoSomado;
     }
 
     /// <summary>
     /// Calcula a taxa diária do investimento.
     /// </summary>
     /// <returns>Taxa diária calculada com base na taxa anual</returns>
-    public decimal CalculaValorTaxaDiaria() => (decimal)Math.Pow(1 + (double)CalculaValorTaxaAnual(), 1D / QuantidadeDeDiaUtil) - 1;
+    public decimal CalculaValorTaxaDiaria() => (decimal)Math.Pow(1 + (double)CalculaValorTaxaAnual(), Math.Round(1D / QuantidadeDeDiaUtil, 8)) - 1;
 
     /// <summary>
     /// Verifica se é necessário calcular IOF com base no período do investimento.
@@ -145,7 +145,13 @@ public class Investimento
     /// Calcula a taxa anual do investimento considerando o indexador e taxa adicional.
     /// </summary>
     /// <returns>Taxa anual calculada</returns>
-    private decimal CalculaValorTaxaAnual() => (Indexador.NmPercentagemRendimento / 100 * NmTaxaRendimento + NmTaxaAdicional) / 100;
+    private decimal CalculaValorTaxaAnual()
+    {
+        if (VerificaSeEhPreFixado())
+            return NmTaxaRendimento / 100;
+
+        return (Indexador.NmRendimento + NmTaxaAdicional) * NmTaxaRendimento / 10000;
+    }
 
     /// <summary>
     /// Realiza todas as validações necessárias para garantir a consistência do investimento.

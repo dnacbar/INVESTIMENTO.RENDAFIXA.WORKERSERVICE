@@ -1,7 +1,7 @@
 ﻿using DN.LOG.LIBRARY.MODEL;
 using DN.LOG.LIBRARY.MODEL.ENUM;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.CRONJOB.Servico;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using Quartz;
 using System.Diagnostics;
 using System.Security.Cryptography;

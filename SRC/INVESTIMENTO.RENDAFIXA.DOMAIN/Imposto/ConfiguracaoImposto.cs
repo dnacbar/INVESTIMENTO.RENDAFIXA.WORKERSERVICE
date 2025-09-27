@@ -13,7 +13,6 @@ public class ConfiguracaoImposto(byte idImposto, byte idConfiguracaoImposto, dec
 
 public static class ConfiguracaoImpostoExtension
 {
-
     public static ConfiguracaoImposto ObtemIof(this IEnumerable<ConfiguracaoImposto> listaDeImposto, int posicaoDiaUtil)
     {
         var listaDeImpostoFiltrada = listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Iof);

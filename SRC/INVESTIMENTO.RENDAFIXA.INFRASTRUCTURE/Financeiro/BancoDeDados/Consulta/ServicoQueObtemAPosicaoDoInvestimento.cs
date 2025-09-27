@@ -25,10 +25,6 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
                      WHERE P.ID_INVESTIMENTO = @IdInvestimento
                        AND P.[DT_POSICAO] <= CAST(GETDATE() AS DATE)
                        AND P.[ID_POSICAO] = (SELECT MAX([ID_POSICAO]) FROM [POSICAO] WHERE [ID_INVESTIMENTO] = @IdInvestimento)";
-
-        if (_dbConnection.State != ConnectionState.Open)
-            _dbConnection.Open();
-
         try
         {
             using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, new { investimento.IdInvestimento }, cancellationToken: token));
@@ -49,11 +45,6 @@ public class ServicoQueObtemAPosicaoDoInvestimento(IDbConnection _dbConnection) 
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao consultar a posição do investimento: [{investimento.IdInvestimento}]!", ex);
-        }
-        finally
-        {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
         }
     }
 }

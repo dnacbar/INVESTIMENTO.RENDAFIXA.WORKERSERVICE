@@ -39,9 +39,6 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
 	                   AND BO_LIQUIDADO = CAST(0 AS BIT)
 	                   AND P.ID_INVESTIMENTO IS NULL";
 
-        if (_dbConnection.State != ConnectionState.Open)
-            _dbConnection.Open();
-
         try
         {
             using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
@@ -69,14 +66,9 @@ public class ServicoQueListaInvestimento(IDbConnection _dbConnection) : IServico
 
             return retorno;
         }
-        catch (Exception ex) when (ex is not NotFoundException || ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
         {
             throw new DataBaseException("Erro ao consultar investimentos para aplicar rendimento diário.", ex);
-        }
-        finally
-        {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
         }
     }
 }

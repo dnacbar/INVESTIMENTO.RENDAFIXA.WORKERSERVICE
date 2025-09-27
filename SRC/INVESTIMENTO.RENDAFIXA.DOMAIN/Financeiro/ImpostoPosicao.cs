@@ -4,28 +4,38 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
-public class ImpostoPosicao(Posicao posicao, EnumTipoImposto idTipoImposto, decimal nmValorImposto)
+public class ImpostoPosicao
 {
-    public Guid IdInvestimento { get; } = posicao.IdInvestimento;
-    public short IdPosicao { get; } = posicao.IdPosicao;
-    public EnumTipoImposto IdTipoImposto { get; } = idTipoImposto;
-    public decimal NmValorImposto { get; } = nmValorImposto;
-
-    public static void CalculaImposto(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeImposto)
+    public ImpostoPosicao() { }
+    public ImpostoPosicao(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
-        ImpostoPosicao impostoIrrf;
-        var quantidadeDeDiasUteis = posicao.Investimento.DtInicial.Date.CalculaDiaUtilEntreDatas(DateTime.Today);
+        Posicao = posicao;
+        ListaDeConfiguracaoImposto = listaDeConfiguracaoImposto;
 
-        if (posicao.Investimento.VerificaSeCalculaIof())
+        var quantidadeDeDiasUteis = Posicao.Investimento.DtInicial.Date.CalculaDiaUtilEntreDatas(DateTime.Today);
+
+        if (Posicao.Investimento.VerificaSeCalculaIof())
         {
-            var impostoIof = new ImpostoPosicao(posicao, EnumTipoImposto.Iof, posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(listaDeImposto, quantidadeDeDiasUteis).NmRendimento / 100));
-            impostoIrrf = new ImpostoPosicao(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - impostoIof.NmValorImposto) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, quantidadeDeDiasUteis).NmRendimento / 100));
-            posicao.ListaDePosicaoImposto.Add(impostoIof);
-            posicao.ListaDePosicaoImposto.Add(impostoIrrf);
+            NmValorImpostoIof = Posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
+            NmValorImpostoIrrf = (Posicao.NmValorBruto - NmValorImpostoIof) * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
+
+            ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Iof, NmValorImpostoIof));
+            ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Irrf, NmValorImpostoIrrf));
+
             return;
         }
 
-        impostoIrrf = new ImpostoPosicao(posicao, EnumTipoImposto.Irrf, (posicao.NmValorBruto - decimal.Zero) * (ConfiguracaoImpostoExtension.ObtemIrrf(listaDeImposto, quantidadeDeDiasUteis).NmRendimento / 100));
-        posicao.ListaDePosicaoImposto.Add(impostoIrrf);
+        NmValorImpostoIrrf = (Posicao.NmValorBruto - decimal.Zero) * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
+
+        ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Irrf, NmValorImpostoIrrf));
     }
+
+    public Posicao Posicao { get; } = null!;
+
+    public decimal NmValorImpostoIof { get; private set; }
+    public decimal NmValorImpostoIrrf { get; private set; }
+    public decimal NmValorImpostoSomado => NmValorImpostoIrrf + NmValorImpostoIof;
+    public List<(EnumTipoImposto, decimal)> ListaDeImpostoCalculadoPorTipo { get; } = [];
+
+    private IEnumerable<ConfiguracaoImposto> ListaDeConfiguracaoImposto { get; } = [];
 }

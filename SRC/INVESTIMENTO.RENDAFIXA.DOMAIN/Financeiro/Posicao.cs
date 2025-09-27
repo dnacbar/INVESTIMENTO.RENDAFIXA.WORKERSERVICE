@@ -48,7 +48,7 @@ public class Posicao
         DtPosicao = DateTime.Today;
     }
 
-    public ICollection<ImpostoPosicao> ListaDePosicaoImposto { get; set; } = [];
+    public ImpostoPosicao ImpostoPosicao { get; private set; } = new();
     public Investimento Investimento { get; } = null!;
 
     public Guid IdInvestimento { get; }
@@ -67,12 +67,12 @@ public class Posicao
     /// Calcula a posição do investimento de forma assíncrona, atualizando os valores brutos e líquidos
     /// e aplicando os impostos conforme as regras de negócio.
     /// </summary>
-    /// <param name="listaDeImposto">Lista de configurações de impostos a serem aplicados</param>
+    /// <param name="listaDeConfiguracaoImposto">Lista de configurações de impostos a serem aplicados</param>
     /// <param name="token">Token de cancelamento para a operação assíncrona</param>
     /// <returns>Task representando a operação assíncrona de cálculo</returns>
     /// <exception cref="OperationCanceledException">Lançada quando a operação é cancelada</exception>
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula ou quando as validações falham</exception>
-    public Task CalculaPosicaoInvestimentoAsync(IEnumerable<ConfiguracaoImposto> listaDeImposto, CancellationToken token) => Task.Run(() => { VerificaSeCalculaPosicaoInicialOuRecorrente(listaDeImposto); }, token);
+    public Task CalculaPosicaoInvestimentoAsync(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto, CancellationToken token) => Task.Run(() => { VerificaSeCalculaPosicaoInicialOuRecorrente(listaDeConfiguracaoImposto); }, token);
     /// <summary>
     /// Verifica se o valor líquido total da posição está zerado.
     /// </summary>
@@ -82,29 +82,26 @@ public class Posicao
     /// <summary>
     /// Calcula a posição inicial do investimento, aplicando a taxa de rendimento e impostos quando aplicável.
     /// </summary>
-    /// <param name="listaDeImposto">Lista de configurações de impostos a serem aplicados</param>
+    /// <param name="listaDeConfiguracaoImposto">Lista de configurações de impostos a serem aplicados</param>
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula para investimentos não isentos</exception>
-    private void CalculaPosicaoInicialInvestimento(IEnumerable<ConfiguracaoImposto> listaDeImposto)
+    private void CalculaPosicaoInicialInvestimento(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
         NmValorBruto = Investimento.NmValorInicial * Investimento.CalculaValorTaxaDiaria();
         NmValorBrutoTotal = Investimento.NmValorInicial + NmValorBruto;
 
         if (Investimento.VerificaSeInvestimentoEhIsentoDeImposto())
         {
-            ListaDePosicaoImposto = [];
+            ImpostoPosicao = new();
             NmValorLiquido = NmValorBruto;
         }
         else
         {
-            if (listaDeImposto == null)
+            if (listaDeConfiguracaoImposto == null)
                 throw new DomainException($"Lista de configuração de imposto tem que ser preenchida!");
 
-            ImpostoPosicao.CalculaImposto(this, listaDeImposto);
+            ImpostoPosicao = new ImpostoPosicao(this, listaDeConfiguracaoImposto);
 
-            var impostoIof = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Iof);
-            var impostoIrrf = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Irrf);
-
-            NmValorLiquido = NmValorBruto - (impostoIof?.NmValorImposto ?? 0) - (impostoIrrf?.NmValorImposto ?? 0);
+            NmValorLiquido = NmValorBruto - ImpostoPosicao.NmValorImpostoIof - ImpostoPosicao.NmValorImpostoIrrf;
         }
 
         NmValorLiquidoTotal = Investimento.NmValorInicial + NmValorLiquido;
@@ -117,31 +114,26 @@ public class Posicao
     /// <summary>
     /// Calcula a posição recorrente do investimento, atualizando valores e aplicando impostos quando aplicável.
     /// </summary>
-    /// <param name="listaDeImposto">Lista de configurações de impostos a serem aplicados</param>
+    /// <param name="listaDeConfiguracaoImposto">Lista de configurações de impostos a serem aplicados</param>
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula para investimentos não isentos</exception>
-    private void CalculaPosicaoRecorrenteInvestimento(IEnumerable<ConfiguracaoImposto> listaDeImposto)
+    private void CalculaPosicaoRecorrenteInvestimento(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
         NmValorBruto = NmValorBruto + NmValorBrutoTotal * Investimento.CalculaValorTaxaDiaria();
         NmValorBrutoTotal = Investimento.NmValorInicial + NmValorBruto;
 
         if (Investimento.VerificaSeInvestimentoEhIsentoDeImposto())
         {
-            ListaDePosicaoImposto = [];
+            ImpostoPosicao = new();
             NmValorLiquido = NmValorBruto;
         }
         else
         {
-            if (listaDeImposto == null)
+            if (listaDeConfiguracaoImposto == null)
                 throw new DomainException($"Lista de configuração de imposto tem que ser preenchida!");
 
-            ImpostoPosicao.CalculaImposto(this, listaDeImposto);
+            ImpostoPosicao = new ImpostoPosicao(this, listaDeConfiguracaoImposto);
 
-            var impostoIof = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Iof);
-            var impostoIrrf = ListaDePosicaoImposto.FirstOrDefault(x => x.IdTipoImposto == EnumTipoImposto.Irrf);
-
-            NmValorLiquido = NmValorBruto -
-                (impostoIof?.NmValorImposto ?? 0) -
-                (impostoIrrf?.NmValorImposto ?? 0);
+            NmValorLiquido = NmValorBruto - ImpostoPosicao.NmValorImpostoIof - ImpostoPosicao.NmValorImpostoIrrf;
         }
 
         NmValorLiquidoTotal = Investimento.NmValorInicial + NmValorLiquido;
@@ -173,7 +165,7 @@ public class Posicao
             throw new DomainException($"Valor bruto total e valor líquido total tem que ser maior que o valor do imposto!");
 
         if (!VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto())
-            throw new DomainException($"Valor bruto total e valor líquido total que ser maior que o valor da soma dos impostos! Valor bruto:[{NmValorBruto}] Valor líquido:[{NmValorLiquido}] Valor imposto somado:[{ListaDePosicaoImposto.Sum(x => x.NmValorImposto)}]");
+            throw new DomainException($"Valor bruto total e valor líquido total que ser maior que o valor da soma dos impostos! Valor bruto:[{NmValorBruto}] Valor líquido:[{NmValorLiquido}] Valor imposto somado:[{ImpostoPosicao.NmValorImpostoSomado}]");
     }
 
     /// <summary>
@@ -237,17 +229,13 @@ public class Posicao
     /// Verifica se os valores totais são maiores que a soma dos valores de impostos.
     /// </summary>
     /// <returns>True se os valores totais são maiores que a soma dos impostos, False caso contrário</returns>
-    private bool VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto()
-    {
-        var valorImpostoSomado = ListaDePosicaoImposto.Sum(x => x.NmValorImposto);
-        return NmValorBrutoTotal > valorImpostoSomado && NmValorLiquidoTotal > valorImpostoSomado;
-    }
-
+    private bool VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto() => NmValorBrutoTotal > ImpostoPosicao.NmValorImpostoSomado && NmValorLiquidoTotal > ImpostoPosicao.NmValorImpostoSomado;
+    
     /// <summary>
     /// Verifica se os valores totais são maiores que cada valor individual de imposto.
     /// </summary>
     /// <returns>True se os valores totais são maiores que cada imposto individual, False caso contrário</returns>
-    private bool VerificaSeValoresTotaisSaoMaioresQueOValorImposto() => ListaDePosicaoImposto.All(x => NmValorLiquidoTotal > x.NmValorImposto && NmValorBrutoTotal > x.NmValorImposto);
+    private bool VerificaSeValoresTotaisSaoMaioresQueOValorImposto() => NmValorLiquidoTotal > ImpostoPosicao.NmValorImpostoIof && NmValorBrutoTotal > ImpostoPosicao.NmValorImpostoIof;
 
     /// <summary>
     /// Verifica se o valor líquido total é maior que o valor líquido.

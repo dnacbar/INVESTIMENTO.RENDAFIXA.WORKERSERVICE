@@ -1,4 +1,5 @@
-﻿    using Dapper;
+﻿using Dapper;
+using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using System.Data;
@@ -19,7 +20,6 @@ public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : I
 	                  FROM [IMPOSTO] I
 	                 INNER JOIN [CONFIGURACAOIMPOSTO] CI
 	                    ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
-
         if (_dbConnection.State != ConnectionState.Open)
             _dbConnection.Open();
         try
@@ -39,6 +39,10 @@ public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : I
             }
 
             return retorno;
+        }
+        catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
+        {
+            throw new DataBaseException("Erro ao consultar configuração de impostos para aplicar rendimento diário.", ex);
         }
         finally
         {

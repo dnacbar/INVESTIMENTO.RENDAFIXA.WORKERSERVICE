@@ -8,17 +8,19 @@ namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula
 
 public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnection _dbConnection) : IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento
 {
-    public Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
+    public async Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
     {
-        var listaDeParametro = new
+        foreach (var item in posicaoImposto.ListaDeImpostoCalculadoPorTipo)
         {
-            posicaoImposto.IdInvestimento,
-            posicaoImposto.IdPosicao,
-            IdImposto = (byte)posicaoImposto.IdTipoImposto,
-            posicaoImposto.NmValorImposto
-        };
+            var listaDeParametro = new
+            {
+                posicaoImposto.Posicao.IdInvestimento,
+                posicaoImposto.Posicao.IdPosicao,
+                IdImposto = (int)item.Item1,
+                NmValorImposto = item.Item2
+            };
 
-        var sql = @"USE DBRENDAFIXA
+            var sql = @"USE DBRENDAFIXA
 
                     INSERT POSICAOIMPOSTO
                           ([ID_INVESTIMENTO]
@@ -30,21 +32,14 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
                            @IdImposto,
                            @NmValorImposto);";
 
-        if (_dbConnection.State != ConnectionState.Open)
-            _dbConnection.Open();
-
-        try
-        {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.IdInvestimento}]!", ex);
-        }
-        finally
-        {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
+            try
+            {
+                await _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.Posicao.IdInvestimento}]!", ex);
+            }
         }
     }
 }

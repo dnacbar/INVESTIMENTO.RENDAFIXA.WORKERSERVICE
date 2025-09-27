@@ -42,10 +42,6 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
                           @NmValorLiquido,
                           @Usuario,
                           GETDATE());";
-
-        if (_dbConnection.State != ConnectionState.Open)
-            _dbConnection.Open();
-
         try
         {
             return _dbConnection.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
@@ -53,11 +49,6 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao adicionar a posição do investimento: [{posicao.IdInvestimento}]!", ex);
-        }
-        finally
-        {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
         }
     }
 }

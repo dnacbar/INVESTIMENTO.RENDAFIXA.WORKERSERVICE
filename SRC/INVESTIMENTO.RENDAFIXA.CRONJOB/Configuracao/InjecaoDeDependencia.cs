@@ -1,7 +1,7 @@
 ﻿using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
-using INVESTIMENTO.RENDAFIXA.CRONJOB.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
@@ -40,21 +40,24 @@ public static class InjecaoDeDependencia
         else
             investimentoRendaFixaCronJob = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<InvestimentoRendaFixaCronJob>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
 
-        
+        ConfiguraDbConnection(builder, investimentoRendaFixaCronJob.ConnectionString.DBRENDAFIXA);
+        ConfiguraBancoDeDados(builder.Services);
+        ConfiguraQuartz(builder, investimentoRendaFixaCronJob.ConfiguraCronJobAplicaRendimento);
+        ConfiguraServicoCronJob(builder.Services);
 
         builder.Services.AddSingleton<IUsuarioInvestimentoRendaFixaCronJob>(x =>
         {
             return investimentoRendaFixaCronJob;
         });
-
-        ConfiguraBancoDeDados(builder.Services);
-        ConfiguraDbConnection(builder, investimentoRendaFixaCronJob.ConnectionString.DBRENDAFIXA);
-        ConfiguraQuartz(builder, investimentoRendaFixaCronJob.ConfiguraCronJobAplicaRendimento);
-        ConfiguraServicoCronJob(builder.Services);
         builder.Services.AddLogging(b => b.AddConsole());
     }
 
-    public static void ConfiguraBancoDeDados(IServiceCollection service)
+    private static void ConfiguraDbConnection(IHostApplicationBuilder builder, string connectionString)
+    {
+        builder.Services.AddTransient<IDbConnection>(x => new SqlConnection(connectionString));
+    }
+
+    private static void ConfiguraBancoDeDados(IServiceCollection service)
     {
         //Consulta
         service.AddSingleton<IServicoQueListaConfiguracaoImposto, ServicoQueListaConfiguracaoImposto>();
@@ -67,12 +70,7 @@ public static class InjecaoDeDependencia
         service.AddSingleton<IServicoQueAtualizaInvestimento, ServicoQueAtualizaInvestimento>();
     }
 
-    public static void ConfiguraDbConnection(IHostApplicationBuilder builder, string connectionString)
-    {
-        builder.Services.AddSingleton<IDbConnection>(x => new SqlConnection(connectionString));
-    }
-
-    public static void ConfiguraQuartz(IHostApplicationBuilder builder, ConfiguraCronJobAplicaRendimento configuraCronJobAplicaRendimento)
+    private static void ConfiguraQuartz(IHostApplicationBuilder builder, ConfiguraCronJobAplicaRendimento configuraCronJobAplicaRendimento)
     {
         builder.Services.Configure<QuartzOptions>(x =>
         {
@@ -97,7 +95,6 @@ public static class InjecaoDeDependencia
                 .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
                 .StartNow()
                 .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
-            //.WithCronSchedule(configurationSection.Diario));
 
             x.AddTrigger(x => x
                 .ForJob(rendimentoComErroJobKey)
@@ -108,9 +105,8 @@ public static class InjecaoDeDependencia
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
     }
 
-    public static void ConfiguraServicoCronJob(IServiceCollection service)
+    private static void ConfiguraServicoCronJob(IServiceCollection service)
     {
         service.AddSingleton<AplicaORendimentoNaPosicaoDeHoje>();
-        service.AddSingleton<ConsultaAConfiguracaoDoImposto>();
     }
 }
