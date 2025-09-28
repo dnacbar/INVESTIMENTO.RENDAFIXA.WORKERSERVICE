@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11012.119 d18.0
+VisualStudioVersion = 18.0.11012.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1_WORKERSERVICE", "1_WORKERSERVICE", "{4B2A2C8A-21BF-4B68-8A21-B662249E9C41}"
 EndProject
@@ -18,12 +18,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INVESTIMENTO.RENDAFIXA.DOMAIN", "INVESTIMENTO.RENDAFIXA.DOMAIN\INVESTIMENTO.RENDAFIXA.DOMAIN.csproj", "{62D59A08-F323-4B1A-8CE9-D1E5675A1D3F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE", "INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE\INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.csproj", "{05332BCF-C1C5-4203-9642-96709DEEE05B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{BA8AFF56-B16B-424E-89A3-C650E355CEDE}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\Users\NACBAR\Downloads\dotnet_8_webapi_boas_praticas.md = ..\..\..\..\Users\NACBAR\Downloads\dotnet_8_webapi_boas_praticas.md
-		..\..\..\..\Users\NACBAR\Downloads\regras_renda_fixa.md = ..\..\..\..\Users\NACBAR\Downloads\regras_renda_fixa.md
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

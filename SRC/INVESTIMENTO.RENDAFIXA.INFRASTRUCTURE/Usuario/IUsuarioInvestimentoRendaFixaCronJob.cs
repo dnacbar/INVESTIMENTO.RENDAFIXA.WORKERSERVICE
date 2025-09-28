@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE;
+﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Usuario;
 
 public interface IUsuarioInvestimentoRendaFixaCronJob
 {

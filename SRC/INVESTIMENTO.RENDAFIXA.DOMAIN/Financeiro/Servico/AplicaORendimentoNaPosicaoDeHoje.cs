@@ -12,8 +12,8 @@ public class AplicaORendimentoNaPosicaoDeHoje(ILogger<AplicaORendimentoNaPosicao
     IServicoQueAdicionaOuAtualizaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,
     IServicoQueAtualizaInvestimento _servicoQueAtualizaInvestimentoComRendimento,
     IServicoQueListaConfiguracaoImposto _servicoQueListaConfiguracaoImposto,
-    IServicoQueListaInvestimento _servicoQueListaInvestimentoSemBloqueio,
-    IServicoQueObtemAPosicaoDoInvestimento _servicoQueObtemAPosicaoDoInvestimento)
+    IServicoQueConsultaInvestimento _servicoQueListaInvestimentoSemBloqueio,
+    IServicoQueConsultaPosicaoDoInvestimento _servicoQueObtemAPosicaoDoInvestimento)
 {
     public async Task ExecutaAsync(CancellationToken token)
     {
@@ -58,12 +58,17 @@ public class AplicaORendimentoNaPosicaoDeHoje(ILogger<AplicaORendimentoNaPosicao
 
         await posicao.CalculaPosicaoInvestimentoAsync(configuracaoImpostos, token);
 
-        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(3, 3, 0), TransactionScopeAsyncFlowOption.Enabled);
+        await AtualizaInvestimentoEAdicionaPosicaoEImpostoAsync(investimento, posicao, token);
+    }
+
+    private async Task AtualizaInvestimentoEAdicionaPosicaoEImpostoAsync(Investimento investimento, Posicao posicao, CancellationToken token)
+    {
+        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 3, 0), TransactionScopeAsyncFlowOption.Enabled);
 
         await _servicoQueAtualizaInvestimentoComRendimento.AtualizaInvestimentoComRendimentoDaPosicaoAsync(investimento, token);
 
         await _servicoQueAdicionaOuAtualizaPosicaoInvestimento.AdicionaPosicaoInvestimentoAsync(posicao, token);
-        
+
         await _servicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento.AdicionaPosicaoImpostoInvestimentoAsync(posicao.ImpostoPosicao, token);
 
         scope.Complete();

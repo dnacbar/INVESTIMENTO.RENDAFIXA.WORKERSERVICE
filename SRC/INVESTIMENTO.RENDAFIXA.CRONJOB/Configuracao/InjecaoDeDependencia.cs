@@ -3,10 +3,10 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Usuario;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;
@@ -61,8 +61,8 @@ public static class InjecaoDeDependencia
     {
         //Consulta
         service.AddSingleton<IServicoQueListaConfiguracaoImposto, ServicoQueListaConfiguracaoImposto>();
-        service.AddSingleton<IServicoQueListaInvestimento, ServicoQueListaInvestimento>();
-        service.AddSingleton<IServicoQueObtemAPosicaoDoInvestimento, ServicoQueObtemAPosicaoDoInvestimento>();
+        service.AddSingleton<IServicoQueConsultaInvestimento, ServicoQueConsultaInvestimento>();
+        service.AddSingleton<IServicoQueConsultaPosicaoDoInvestimento, ServicoQueConsultaPosicaoDoInvestimento>();
 
         //Manipula
         service.AddSingleton<IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento, ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento>();
@@ -85,7 +85,7 @@ public static class InjecaoDeDependencia
             var rendimentoDiarioJobKey = new JobKey("rendimentoDiarioJobKey", "aplicaRendimentoGroup");
             var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
 
-            x.AddJob<CronJobAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
+            x.AddJob<CronJobConsultaEAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
             x.AddJob<CronJobConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
             var verificaSeEstaNoAmbienteDeProducao = builder.Environment.IsProduction();

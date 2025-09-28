@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
-public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario> _logger,
+public class CronJobConsultaEAplicaRendimentoDiario(ILogger<CronJobConsultaEAplicaRendimentoDiario> _logger,
     AplicaORendimentoNaPosicaoDeHoje _aplicaRendimentoNaPosicaoDeHoje) : IJob
 {
     public async Task Execute(IJobExecutionContext context)
@@ -22,30 +22,24 @@ public class CronJobAplicaRendimentoDiario(ILogger<CronJobAplicaRendimentoDiario
 
             await _aplicaRendimentoNaPosicaoDeHoje.ExecutaAsync(context.CancellationToken);
         }
-        catch (TaskCanceledException ex)
-        {
-            ex.CreateLog(_logger, EnumLogLevel.Warning, new System.Net.IPAddress(1));
-        }
-        catch (NotFoundException ex)
-        {
-            _logger.LogWarning(ex.Message);
-        }
-        catch (DataBaseException ex)
-        {
-            ex.CreateLog(_logger, EnumLogLevel.Error, new System.Net.IPAddress(1));
-        }
-        catch (DomainException ex)
-        {
-            ex.CreateLog(_logger, EnumLogLevel.Error, new System.Net.IPAddress(1));
-        }
-        catch (CryptographicException ex)
-        {
-            ex.CreateLog(_logger, EnumLogLevel.Critical, new System.Net.IPAddress(1));
-            throw;
-        }
         catch (Exception ex)
         {
-            ex.CreateLog(_logger, EnumLogLevel.Critical, new System.Net.IPAddress(1));
+            if (ex is TaskCanceledException || ex is NotFoundException)
+            {
+                ex.CreateLog(_logger, EnumLogLevel.Warning);
+            }
+            else if (ex is DataBaseException || ex is DomainException)
+            {
+                ex.CreateLog(_logger, EnumLogLevel.Error);
+            }
+            else if (ex is CryptographicException)
+            {
+                ex.CreateLog(_logger, EnumLogLevel.Critical);
+                throw;
+            }
+            else
+                ex.CreateLog(_logger, EnumLogLevel.Critical);
+
         }
         finally
         {

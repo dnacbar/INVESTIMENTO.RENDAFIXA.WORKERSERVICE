@@ -3,7 +3,7 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
-public class ServicoQueObtemOImpostoDaPosicaoDoInvestimento() : IServicoQueObtemOImpostoDaPosicaoDoInvestimento
+public class ServicoQueConsultaImpostoDaPosicaoDoInvestimento() : IServicoQueConsultaImpostoDaPosicaoDoInvestimento
 {
     public Task<ImpostoPosicao> ObtemImpostoDaPosicaoDoInvestimentoAsync(CancellationToken token)
     {

@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DN.HELPER.LIBRARY" Version="1.0.0" />
-    <PackageReference Include="DN.LOG.LIBRARY" Version="1.4.7" />
+    <PackageReference Include="DN.LOG.LIBRARY" Version="1.4.8" />
   </ItemGroup>
 
 </Project>
