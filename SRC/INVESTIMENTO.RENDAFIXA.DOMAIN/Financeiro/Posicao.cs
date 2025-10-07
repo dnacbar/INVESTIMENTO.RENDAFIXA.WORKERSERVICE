@@ -21,7 +21,6 @@ public class Posicao
     /// <exception cref="DomainException">Lançada quando as validações de valores falham</exception>
     public Posicao(Investimento investimento, short idPosicao, decimal nmValorBrutoTotal, decimal nmValorLiquidoTotal, decimal nmValorBruto, decimal nmValorLiquido)
     {
-        IdInvestimento = investimento.IdInvestimento;
         IdPosicao = ++idPosicao;
         DtPosicao = DateTime.Today;
         NmValorBrutoTotal = nmValorBrutoTotal;
@@ -43,7 +42,6 @@ public class Posicao
     public Posicao(Investimento investimento)
     {
         Investimento = investimento ?? throw new DomainException("Investimento tem que estar preenchido!");
-        IdInvestimento = investimento.IdInvestimento;
         IdPosicao = IdPosicaoInicial;
         DtPosicao = DateTime.Today;
     }
@@ -51,7 +49,6 @@ public class Posicao
     public ImpostoPosicao ImpostoPosicao { get; private set; } = new();
     public Investimento Investimento { get; } = null!;
 
-    public Guid IdInvestimento { get; }
     public short IdPosicao { get; }
     public DateTime DtPosicao { get; }
     public decimal NmValorBrutoTotal { get; set; }
@@ -118,7 +115,7 @@ public class Posicao
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula para investimentos não isentos</exception>
     private void CalculaPosicaoRecorrenteInvestimento(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
-        NmValorBruto = NmValorBruto + NmValorBrutoTotal * Investimento.CalculaValorTaxaDiaria();
+        NmValorBruto += NmValorBrutoTotal * Investimento.CalculaValorTaxaDiaria();
         NmValorBrutoTotal = Investimento.NmValorInicial + NmValorBruto;
 
         if (Investimento.VerificaSeInvestimentoEhIsentoDeImposto())
@@ -230,7 +227,7 @@ public class Posicao
     /// </summary>
     /// <returns>True se os valores totais são maiores que a soma dos impostos, False caso contrário</returns>
     private bool VerificaSeValoresTotaisSaoMaioresQueASomaDoValorDeImposto() => NmValorBrutoTotal > ImpostoPosicao.NmValorImpostoSomado && NmValorLiquidoTotal > ImpostoPosicao.NmValorImpostoSomado;
-    
+
     /// <summary>
     /// Verifica se os valores totais são maiores que cada valor individual de imposto.
     /// </summary>

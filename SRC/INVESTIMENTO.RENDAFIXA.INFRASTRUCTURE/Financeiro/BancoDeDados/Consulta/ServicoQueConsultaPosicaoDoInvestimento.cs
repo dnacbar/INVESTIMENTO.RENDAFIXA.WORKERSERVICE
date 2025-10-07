@@ -11,16 +11,14 @@ public class ServicoQueConsultaPosicaoDoInvestimento(IDbConnection _dbConnection
 {
     public async Task<Posicao> ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(Investimento investimento, CancellationToken token)
     {
-        var sql = @"USE DBRENDAFIXA
-
-                    SELECT P.[ID_INVESTIMENTO]
+        const string sql = @"SELECT P.[ID_INVESTIMENTO]
                           ,P.[ID_POSICAO]
                           ,P.[NM_VALORBRUTOTOTAL]
                           ,P.[NM_VALORLIQUIDOTOTAL]
                           ,P.[NM_VALORBRUTO]
                           ,P.[NM_VALORLIQUIDO]
-                      FROM [POSICAO] P
-                      JOIN [INVESTIMENTO] I
+                      FROM [POSICAO] P WITH(NOLOCK)
+                      JOIN [INVESTIMENTO] I WITH(NOLOCK)
                         ON P.ID_INVESTIMENTO = I.ID_INVESTIMENTO
                      WHERE P.ID_INVESTIMENTO = @IdInvestimento
                        AND P.[DT_POSICAO] <= CAST(GETDATE() AS DATE)

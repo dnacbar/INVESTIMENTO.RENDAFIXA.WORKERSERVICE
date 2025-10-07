@@ -12,10 +12,8 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
 {
     public async Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token)
     {
-        var sql = @"USE DBRENDAFIXA
-
-                    SELECT TOP 100  
-	                	   I.[ID_INVESTIMENTO]
+        const string sql = @"SELECT I.[ID_INVESTIMENTO]
+                          ,I.[CD_INVESTIMENTO]
                           ,[ID_INVESTIDOR]
                           ,[TX_DOCUMENTOFEDERAL]
                           ,[NM_VALORINICIAL]
@@ -29,8 +27,8 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
                      	  ,IX.[NM_RENDIMENTO]
                           ,[BO_LIQUIDADO]
                           ,[BO_ISENTOIMPOSTO]
-	                  FROM [INVESTIMENTO] I
-	                  JOIN [INDEXADOR] IX
+	                  FROM [INVESTIMENTO] I WITH (NOLOCK)
+	                  JOIN [INDEXADOR] IX WITH (NOLOCK)
                         ON I.ID_INDEXADOR = IX.ID_INDEXADOR
 	                  LEFT JOIN [POSICAO] P 
 	                    ON I.ID_INVESTIMENTO = P.ID_INVESTIMENTO
@@ -52,6 +50,7 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
                 retorno.Add(new Investimento(new Indexador(Convert.ToByte(dReader["ID_INDEXADOR"]),
                                                            Convert.ToDecimal(dReader["NM_RENDIMENTO"])),
                        Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),
+                       Convert.ToByte(dReader["CD_INVESTIMENTO"]),
                        Guid.Parse(dReader["ID_INVESTIDOR"].ToString()!),
                        dReader["TX_DOCUMENTOFEDERAL"].ToString()!,
                        Convert.ToDecimal(dReader["NM_VALORINICIAL"]),

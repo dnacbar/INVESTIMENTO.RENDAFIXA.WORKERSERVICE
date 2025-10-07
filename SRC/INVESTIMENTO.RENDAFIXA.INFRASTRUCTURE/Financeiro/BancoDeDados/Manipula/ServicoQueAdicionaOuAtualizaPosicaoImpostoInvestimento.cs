@@ -11,27 +11,28 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
 {
     public async Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
     {
+        const string sql = @"INSERT POSICAOIMPOSTO
+                               ([ID_INVESTIMENTO]
+                                ,[CD_INVESTIMENTO]
+                                ,[ID_POSICAO]
+                                ,[ID_IMPOSTO]
+                                ,[NM_VALORIMPOSTO])
+                         VALUES (@IdInvestimento,
+                                @CdInvestimento,
+                                @IdPosicao,
+                                @IdImposto,
+                                @NmValorImposto)";
+
         foreach (var item in posicaoImposto.ListaDeImpostoCalculadoPorTipo)
         {
             var listaDeParametro = new
             {
-                posicaoImposto.Posicao.IdInvestimento,
+                posicaoImposto.Posicao.Investimento.IdInvestimento,
+                posicaoImposto.Posicao.Investimento.CdInvestimento,
                 posicaoImposto.Posicao.IdPosicao,
                 IdImposto = (int)item.Item1,
                 NmValorImposto = item.Item2
             };
-
-            var sql = @"USE DBRENDAFIXA
-
-                    INSERT POSICAOIMPOSTO
-                          ([ID_INVESTIMENTO]
-                           ,[ID_POSICAO]
-                           ,[ID_IMPOSTO]
-                           ,[NM_VALORIMPOSTO])
-                    VALUES (@IdInvestimento,
-                           @IdPosicao,
-                           @IdImposto,
-                           @NmValorImposto);";
 
             try
             {
@@ -39,7 +40,7 @@ public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnectio
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.Posicao.IdInvestimento}]!", ex);
+                throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.Posicao.Investimento.IdInvestimento}]!", ex);
             }
         }
     }

@@ -11,9 +11,20 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuari
 {
     public Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
     {
-        var parametros = new
+        const string sql = @"UPDATE [INVESTIMENTO]
+                                SET [NM_VALORFINAL] = @NmValorFinal
+                                   ,[NM_VALORIMPOSTO] = @NmValorImposto
+                                   ,[BO_LIQUIDADO] = @BoLiquidado
+                                   ,[TX_USUARIOATUALIZACAO] = @Usuario
+                                   ,[DT_ATUALIZACAO] = GETDATE()
+                              WHERE [ID_INVESTIMENTO] = @IdInvestimento
+                                AND [CD_INVESTIMENTO] = @CdInvestimento
+                                AND [ID_INVESTIDOR] = @IdInvestidor";
+
+        var listaDeParametro = new
         {
             investimento.IdInvestimento,
+            investimento.CdInvestimento,
             investimento.IdInvestidor,
             investimento.NmValorFinal,
             investimento.NmValorImposto,
@@ -21,20 +32,9 @@ public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IUsuari
             _usuarioInvestimentoRendaFixaCronJob.Usuario
         };
 
-        var sql = @"USE DBRENDAFIXA
-
-                    UPDATE [INVESTIMENTO]
-                       SET [NM_VALORFINAL] = @NmValorFinal
-                          ,[NM_VALORIMPOSTO] = @NmValorImposto
-                          ,[BO_LIQUIDADO] = @BoLiquidado
-                          ,[TX_USUARIOATUALIZACAO] = @Usuario
-                          ,[DT_ATUALIZACAO] = GETDATE()
-                     WHERE [ID_INVESTIMENTO] = @IdInvestimento
-                       AND [ID_INVESTIDOR] = @IdInvestidor";
-
         try
         {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
+            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

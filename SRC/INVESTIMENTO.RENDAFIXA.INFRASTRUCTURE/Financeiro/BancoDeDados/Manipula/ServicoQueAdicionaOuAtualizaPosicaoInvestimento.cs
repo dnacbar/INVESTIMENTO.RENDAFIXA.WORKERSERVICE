@@ -11,9 +11,30 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
 {
     public Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {
+        const string sql = @"INSERT INTO POSICAO 
+                          ([ID_INVESTIMENTO]
+                          ,[CD_INVESTIMENTO]
+                          ,[ID_POSICAO]
+                          ,[DT_POSICAO]
+                          ,[NM_VALORBRUTOTOTAL]
+                          ,[NM_VALORLIQUIDOTOTAL]
+                          ,[NM_VALORBRUTO]
+                          ,[NM_VALORLIQUIDO]
+                          ,[TX_USUARIO])
+                   VALUES (@IdInvestimento,
+                          @CdInvestimento,
+                          @IdPosicao,
+                          @DtPosicao,
+                          @NmValorBrutoTotal,
+                          @NmValorLiquidoTotal,
+                          @NmValorBruto,
+                          @NmValorLiquido,
+                          @Usuario)";
+
         var parametros = new
         {
-            posicao.IdInvestimento,
+            posicao.Investimento.IdInvestimento,
+            posicao.Investimento.CdInvestimento,
             posicao.IdPosicao,
             posicao.DtPosicao,
             posicao.NmValorBrutoTotal,
@@ -23,33 +44,13 @@ public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbCo
             _usuarioInvestimentoRendaFixaCronJob.Usuario
         };
 
-        var sql = @"USE DBRENDAFIXA
-
-                   INSERT INTO POSICAO ([ID_INVESTIMENTO]
-                          ,[ID_POSICAO]
-                          ,[DT_POSICAO]
-                          ,[NM_VALORBRUTOTOTAL]
-                          ,[NM_VALORLIQUIDOTOTAL]
-                          ,[NM_VALORBRUTO]
-                          ,[NM_VALORLIQUIDO]
-                          ,[TX_USUARIO] 
-                          ,[DT_CRIACAO])
-                   VALUES (@IdInvestimento,
-                          @IdPosicao,
-                          @DtPosicao,
-                          @NmValorBrutoTotal,
-                          @NmValorLiquidoTotal,
-                          @NmValorBruto,
-                          @NmValorLiquido,
-                          @Usuario,
-                          GETDATE());";
         try
         {
             return _dbConnection.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new DataBaseException($"Erro ao adicionar a posição do investimento: [{posicao.IdInvestimento}]!", ex);
+            throw new DataBaseException($"Erro ao adicionar a posição do investimento: [{posicao.Investimento.IdInvestimento}]!", ex);
         }
     }
 }

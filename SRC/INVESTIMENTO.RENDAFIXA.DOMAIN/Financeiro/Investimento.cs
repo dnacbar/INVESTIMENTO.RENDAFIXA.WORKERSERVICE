@@ -31,11 +31,12 @@ public class Investimento
     /// <param name="boLiquidado">Indica se o investimento está liquidado</param>
     /// <param name="boIsentoImposto">Indica se o investimento é isento de impostos</param>
     /// <exception cref="DomainException">Lançada quando alguma validação falha</exception>
-    public Investimento(Indexador indexador, Guid idInvestimento, Guid idInvestidor, string txDocumentoFederal, decimal nmValorInicial, decimal nmValorFinal, decimal nmValorImposto,
+    public Investimento(Indexador indexador, Guid idInvestimento, byte cdInvestimento, Guid idInvestidor, string txDocumentoFederal, decimal nmValorInicial, decimal nmValorFinal, decimal nmValorImposto,
         decimal nmTaxaRendimento, decimal nmTaxaAdicional, DateTime dtInicial, DateTime dtFinal, bool boLiquidado, bool boIsentoImposto)
     {
         Indexador = indexador ?? throw new DomainException("Indexador tem que ser preenchido!");
         IdInvestimento = idInvestimento;
+        CdInvestimento = cdInvestimento;
         IdInvestidor = idInvestidor;
         TxDocumentoFederal = txDocumentoFederal;
         NmValorInicial = nmValorInicial;
@@ -63,6 +64,7 @@ public class Investimento
     public virtual Posicao Posicao { get; private set; } = null!;
 
     public Guid IdInvestimento { get; }
+    public byte CdInvestimento { get; }
     public Guid IdInvestidor { get; }
     public string TxDocumentoFederal { get; } = string.Empty;
     public decimal NmValorInicial { get; }
@@ -71,7 +73,6 @@ public class Investimento
     public decimal NmTaxaRendimento { get; }
     public decimal NmTaxaAdicional { get; private set; }
     public DateTime DtInicial { get; }
-
     /// <summary>
     /// Data final do investimento. Atualiza o status de liquidação quando modificada.
     /// </summary>
@@ -84,7 +85,6 @@ public class Investimento
             BoLiquidado = DateTime.Today >= _dtFinal.Date;
         }
     }
-
     /// <summary>
     /// Tipo de indexador do investimento. Quando alterado, ajusta a taxa adicional para zero se for pré-fixado.
     /// </summary>
@@ -97,7 +97,6 @@ public class Investimento
             NmTaxaAdicional = _idIndexador == EnumIndexador.Pre ? decimal.Zero : NmTaxaAdicional;
         }
     }
-
     public bool BoLiquidado { get; private set; }
     public bool BoIsentoImposto { get; }
     public string TxUsuario
@@ -106,6 +105,11 @@ public class Investimento
         private set { _txUsuario = string.IsNullOrEmpty(value) ? "DN" : value; }
     }
     public DateTime DtCriacao { get; }
+
+    private DateTime _dtFinal;
+    private EnumIndexador _idIndexador;
+    private string _txUsuario = string.Empty;
+
 
     /// <summary>
     /// Adiciona os resultados do cálculo de posição ao investimento.
@@ -243,8 +247,4 @@ public class Investimento
         ulong.TryParse(TxDocumentoFederal, out _) &&
         (TxDocumentoFederal.Length == TamanhoDocumentoPessoaFisica ||
          TxDocumentoFederal.Length == TamanhoDocumentoPessoaJuridica);
-
-    private DateTime _dtFinal;
-    private EnumIndexador _idIndexador;
-    private string _txUsuario = string.Empty;
 }
