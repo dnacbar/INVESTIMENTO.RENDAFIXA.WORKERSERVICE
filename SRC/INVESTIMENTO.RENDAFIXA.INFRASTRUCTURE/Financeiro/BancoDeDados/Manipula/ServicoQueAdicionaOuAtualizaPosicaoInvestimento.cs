@@ -7,7 +7,7 @@ using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbConnection, IUsuarioInvestimentoRendaFixaCronJob _usuarioInvestimentoRendaFixaCronJob) : IServicoQueAdicionaOuAtualizaPosicaoInvestimento
+public class ServicoQueAdicionaOuAtualizaPosicaoInvestimento(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob) : IServicoQueAdicionaOuAtualizaPosicaoInvestimento
 {
     public Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {

@@ -1,6 +1,6 @@
 ﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Usuario;
 
-public interface IUsuarioInvestimentoRendaFixaCronJob
+public interface IInvestimentoRendaFixaWorkerService
 {
     string Usuario { get; }
 }

@@ -19,10 +19,13 @@ public static class InjecaoDeDependencia
 {
     public static void AdicionaInjecaoDeDependencia(IHostApplicationBuilder builder)
     {
-        InvestimentoRendaFixaCronJob investimentoRendaFixaCronJob;
-        if (builder.Environment.IsProduction())
+        InvestimentoRendaFixaWorkerService investimentoRendaFixaWorkerService;
+
+        if (builder.Environment.IsDevelopment())
+            investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
+        else
         {
-            var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.CRONJOB");
+            var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.WORKERSERVICE");
 
             const int nativeTagSizeByte = 16;
             var keyBytes = Convert.FromBase64String("UXGoyfisUfj+1C0k+iK+kgaDnNeB7kWoPmDm0pALKCs=");
@@ -35,26 +38,24 @@ public static class InjecaoDeDependencia
 
             aes.Decrypt(nonceBytes, cipherBytes, tagBytes, plainBytes);
 
-            investimentoRendaFixaCronJob = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaCronJob>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
+            investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         }
-        else
-            investimentoRendaFixaCronJob = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.CRONJOB").Get<InvestimentoRendaFixaCronJob>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
 
-        ConfiguraDbConnection(builder, investimentoRendaFixaCronJob.ConnectionString.DBRENDAFIXA);
+        ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
         ConfiguraBancoDeDados(builder.Services);
-        ConfiguraQuartz(builder, investimentoRendaFixaCronJob.ConfiguraCronJobAplicaRendimento);
+        ConfiguraQuartz(builder, investimentoRendaFixaWorkerService.ConfiguraCronJobAplicaRendimento);
         ConfiguraServicoCronJob(builder.Services);
 
-        builder.Services.AddSingleton<IUsuarioInvestimentoRendaFixaCronJob>(x =>
+        builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
         {
-            return investimentoRendaFixaCronJob;
+            return investimentoRendaFixaWorkerService;
         });
         builder.Services.AddLogging(b => b.AddConsole());
     }
 
-    private static void ConfiguraDbConnection(IHostApplicationBuilder builder, string connectionString)
+    private static void ConfiguraDbConnection(IServiceCollection services, string connectionString)
     {
-        builder.Services.AddTransient<IDbConnection>(x => new SqlConnection(connectionString));
+        services.AddTransient<IDbConnection>(x => new SqlConnection(connectionString));
     }
 
     private static void ConfiguraBancoDeDados(IServiceCollection service)
