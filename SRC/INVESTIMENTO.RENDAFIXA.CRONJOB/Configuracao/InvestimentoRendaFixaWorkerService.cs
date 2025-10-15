@@ -1,12 +1,14 @@
-﻿using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Usuario;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
 
-internal class InvestimentoRendaFixaWorkerService(ConnectionString connectionString, ConfiguraCronJobAplicaRendimento configuraCronJobAplicaRendimento, string usuario) : IInvestimentoRendaFixaWorkerService
+internal class InvestimentoRendaFixaWorkerService(ConnectionString connectionString, ConfiguraCronJobAplicaRendimento configuraCronJobAplicaRendimento, 
+    string usuario, short tempoLimiteTransacion) : IInvestimentoRendaFixaWorkerService
 {
     public ConnectionString ConnectionString { get; } = connectionString;
     public ConfiguraCronJobAplicaRendimento ConfiguraCronJobAplicaRendimento { get; } = configuraCronJobAplicaRendimento;
     public string Usuario { get; } = usuario;
+    public short TempoLimiteTransacion { get; } = tempoLimiteTransacion;
 }
 
 internal class ConnectionString(string dbRendaFixa)

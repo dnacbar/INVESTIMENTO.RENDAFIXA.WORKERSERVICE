@@ -1,12 +1,9 @@
 ﻿using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Usuario;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;

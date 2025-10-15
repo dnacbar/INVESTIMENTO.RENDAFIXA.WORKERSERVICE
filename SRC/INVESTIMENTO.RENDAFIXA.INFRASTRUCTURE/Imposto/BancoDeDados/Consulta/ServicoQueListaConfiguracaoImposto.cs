@@ -5,7 +5,7 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using System.Data;
 using System.Data.Common;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 
 public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : IServicoQueListaConfiguracaoImposto
 {

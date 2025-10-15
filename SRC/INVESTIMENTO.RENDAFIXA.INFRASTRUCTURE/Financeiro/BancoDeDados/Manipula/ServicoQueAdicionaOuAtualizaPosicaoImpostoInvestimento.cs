@@ -2,10 +2,10 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Usuario;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using System.Data;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 
 public class ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento(IDbConnection _dbConnection) : IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento
 {

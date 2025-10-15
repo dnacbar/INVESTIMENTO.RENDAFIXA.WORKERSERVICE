@@ -12,7 +12,7 @@ public class Investimento
     private const byte TamanhoDocumentoPessoaJuridica = 14;
     private const byte TamanhoDocumentoPessoaFisica = 11;
     private const byte LimiteDeQuantidadeDeDiaParaCalculoDeIof = 30;
-    private const int QuantidadeDeDiaUtil = 252;
+    internal const int QuantidadeDeDiaUtil = 252;
 
     /// <summary>
     /// Inicializa uma nova instância de um investimento de renda fixa.
@@ -122,12 +122,6 @@ public class Investimento
     }
 
     /// <summary>
-    /// Calcula a taxa diária do investimento.
-    /// </summary>
-    /// <returns>Taxa diária calculada com base na taxa anual</returns>
-    public decimal CalculaValorTaxaDiaria() => (decimal)Math.Pow(1 + (double)CalculaValorTaxaAnual(), Math.Round(1D / QuantidadeDeDiaUtil, 8)) - 1;
-
-    /// <summary>
     /// Verifica se é necessário calcular IOF com base no período do investimento.
     /// </summary>
     /// <returns>True se o investimento está dentro do período de cobrança de IOF, False caso contrário</returns>
@@ -146,18 +140,6 @@ public class Investimento
     public bool VerificaSeInvestimentoEhIsentoDeImposto() => BoIsentoImposto;
 
     /// <summary>
-    /// Calcula a taxa anual do investimento considerando o indexador e taxa adicional.
-    /// </summary>
-    /// <returns>Taxa anual calculada</returns>
-    private decimal CalculaValorTaxaAnual()
-    {
-        if (VerificaSeEhPreFixado())
-            return NmTaxaRendimento / 100;
-
-        return (Indexador.NmRendimento + NmTaxaAdicional) * NmTaxaRendimento / 10000;
-    }
-
-    /// <summary>
     /// Realiza todas as validações necessárias para garantir a consistência do investimento.
     /// </summary>
     /// <exception cref="DomainException">Lançada quando alguma validação falha</exception>
@@ -170,13 +152,13 @@ public class Investimento
             throw new DomainException($"Código investidor tem que ser preenchido! Código investidor:[{IdInvestidor}]");
 
         if (!VerificaSeDataInvestimentoEstaValida())
-            throw new DomainException($"Data inicial tem que ser menor ou igual a data de hoje e menor do que a data final! Data inicial:[{DtInicial}] Data final:[{DtFinal}]");
+            throw new DomainException($"Data inicial tem que ser menor ou igual a data de hoje e menor do que a data final! Data inicial:[{DtInicial}] data final:[{DtFinal}]");
 
         if (!VerificaSeValorInicialFinalEstaPositivo())
-            throw new DomainException($"Valor inicial ou valor final que ser positivo! Valor inicial:[{NmValorInicial}] Valor final:[{NmValorFinal}]");
+            throw new DomainException($"Valor inicial ou valor final que ser positivo! Valor inicial:[{NmValorInicial}] valor final:[{NmValorFinal}]");
 
         if (!VerificaSeValorInicialEhMenorOuIgualValorFinal())
-            throw new DomainException($"Valor inicial tem que ser menor ou igual ao valor final! Valor inicial:[{NmValorInicial}] Valor final:[{NmValorFinal}]");
+            throw new DomainException($"Valor inicial tem que ser menor ou igual ao valor final! Valor inicial:[{NmValorInicial}] valor final:[{NmValorFinal}]");
 
         if (!VerificaSeValorImpostoEstaPositivo())
             throw new DomainException($"Valor imposto que ser positivo! Valor imposto:[{NmValorImposto}]");

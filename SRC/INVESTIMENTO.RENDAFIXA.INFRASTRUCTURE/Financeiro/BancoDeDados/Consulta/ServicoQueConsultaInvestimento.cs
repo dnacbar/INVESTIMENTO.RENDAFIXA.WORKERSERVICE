@@ -6,7 +6,7 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
 using System.Data;
 using System.Data.Common;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 
 public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaInvestimento
 {

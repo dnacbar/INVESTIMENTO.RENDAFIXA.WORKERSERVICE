@@ -1,4 +1,5 @@
-﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
@@ -7,7 +8,8 @@ using System.Transactions;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
-public class AplicaORendimentoNaPosicaoDeHoje(ILogger<AplicaORendimentoNaPosicaoDeHoje> _logger,
+public class AplicaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
+    ILogger<AplicaORendimentoNaPosicaoDeHoje> _logger,
     IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento _servicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento,
     IServicoQueAdicionaOuAtualizaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,
     IServicoQueAtualizaInvestimento _servicoQueAtualizaInvestimentoComRendimento,
@@ -63,7 +65,7 @@ public class AplicaORendimentoNaPosicaoDeHoje(ILogger<AplicaORendimentoNaPosicao
 
     private async Task AtualizaInvestimentoEAdicionaPosicaoEImpostoAsync(Investimento investimento, Posicao posicao, CancellationToken token)
     {
-        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 3, 0), TransactionScopeAsyncFlowOption.Enabled);
+        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, _investimentoRendaFixaWorkerService.TempoLimiteTransacion), TransactionScopeAsyncFlowOption.Enabled);
 
         await _servicoQueAtualizaInvestimentoComRendimento.AtualizaInvestimentoComRendimentoDaPosicaoAsync(investimento, token);
 

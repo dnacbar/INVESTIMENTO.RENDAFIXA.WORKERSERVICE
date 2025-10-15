@@ -1,6 +1,7 @@
 ﻿using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
@@ -83,7 +84,7 @@ public class Posicao
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula para investimentos não isentos</exception>
     private void CalculaPosicaoInicialInvestimento(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
-        NmValorBruto = Investimento.NmValorInicial * Investimento.CalculaValorTaxaDiaria();
+        NmValorBruto = Investimento.NmValorInicial * CalculaValorTaxaDiaria();
         NmValorBrutoTotal = Investimento.NmValorInicial + NmValorBruto;
 
         if (Investimento.VerificaSeInvestimentoEhIsentoDeImposto())
@@ -115,7 +116,7 @@ public class Posicao
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula para investimentos não isentos</exception>
     private void CalculaPosicaoRecorrenteInvestimento(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
-        NmValorBruto += NmValorBrutoTotal * Investimento.CalculaValorTaxaDiaria();
+        NmValorBruto += NmValorBrutoTotal * CalculaValorTaxaDiaria();
         NmValorBrutoTotal = Investimento.NmValorInicial + NmValorBruto;
 
         if (Investimento.VerificaSeInvestimentoEhIsentoDeImposto())
@@ -141,22 +142,40 @@ public class Posicao
     }
 
     /// <summary>
+    /// Calcula a taxa anual do investimento considerando o indexador e taxa adicional.
+    /// </summary>
+    /// <returns>Taxa anual calculada</returns>
+    private decimal CalculaValorTaxaAnual()
+    {
+        if (Investimento.VerificaSeEhPreFixado())
+            return Investimento.NmTaxaRendimento / 100;
+
+        return (Investimento.Indexador.NmRendimento + Investimento.NmTaxaAdicional) * Investimento.NmTaxaRendimento / 10000;
+    }
+
+    /// <summary>
+    /// Calcula a taxa diária do investimento.
+    /// </summary>
+    /// <returns>Taxa diária calculada com base na taxa anual</returns>
+    public decimal CalculaValorTaxaDiaria() => (decimal)Math.Pow(1 + (double)CalculaValorTaxaAnual(), Math.Round(1D / Financeiro.Investimento.QuantidadeDeDiaUtil, 8)) - 1;
+
+    /// <summary>
     /// Valida os valores da posição, garantindo que as relações entre valores brutos e líquidos estejam corretas.
     /// </summary>
     /// <exception cref="DomainException">Lançada quando alguma validação de valores falha</exception>
     private void ValidaPosicao()
     {
         if (!VerificaSeValorBrutoTotalEhMaiorQueOValorLiquidoTotal())
-            throw new DomainException($"Valor bruto total tem que ser maior que o valor líquido total! Valor bruto total:[{NmValorBruto}] Valor líquido total:[{NmValorLiquido}]");
+            throw new DomainException($"Valor bruto total tem que ser maior que o valor líquido total! Valor bruto total:[{NmValorBruto}] valor líquido total:[{NmValorLiquido}]");
 
         if (!VerificaSeValorBrutoTotalEhMaiorQueOValorBruto())
-            throw new DomainException($"Valor bruto total tem que ser maior que o valor bruto! Valor bruto total:[{NmValorBrutoTotal}] Valor bruto:[{NmValorBruto}]");
+            throw new DomainException($"Valor bruto total tem que ser maior que o valor bruto! Valor bruto total:[{NmValorBrutoTotal}] valor bruto:[{NmValorBruto}]");
 
         if (!VerificaSeValorLiquidoTotalEhMaiorQueOValorLiquido())
-            throw new DomainException($"Valor líquido total tem que ser maior que o valor líquido! Valor líquido total:[{NmValorLiquidoTotal}] Valor líquido:[{NmValorLiquido}]");
+            throw new DomainException($"Valor líquido total tem que ser maior que o valor líquido! Valor líquido total:[{NmValorLiquidoTotal}] valor líquido:[{NmValorLiquido}]");
 
         if (!VerificaSeValorBrutoEhMaiorQueOValorLiquido())
-            throw new DomainException($"Valor bruto tem que ser maior que o valor líquido! Valor bruto:[{NmValorBruto}] Valor líquido:[{NmValorLiquido}]");
+            throw new DomainException($"Valor bruto tem que ser maior que o valor líquido! Valor bruto:[{NmValorBruto}] valor líquido:[{NmValorLiquido}]");
 
         if (!VerificaSeValoresTotaisSaoMaioresQueOValorImposto())
             throw new DomainException($"Valor bruto total e valor líquido total tem que ser maior que o valor do imposto!");
