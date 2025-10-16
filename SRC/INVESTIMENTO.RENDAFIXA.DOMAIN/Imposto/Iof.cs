@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
+﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto;
 
 public class Iof(byte idImposto, byte idConfiguracaoImposto, decimal nmRendimento, short nmDiasUteis) : ConfiguracaoImposto(idImposto, idConfiguracaoImposto, nmRendimento, nmDiasUteis)
 {

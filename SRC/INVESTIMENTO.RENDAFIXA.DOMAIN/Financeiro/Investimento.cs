@@ -1,8 +1,8 @@
 ﻿using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice.Enum;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Indice;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Indice.Enum;
 
-namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
+namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro;
 
 /// <summary>
 /// Representa um investimento de renda fixa com suas características, valores e regras de negócio.

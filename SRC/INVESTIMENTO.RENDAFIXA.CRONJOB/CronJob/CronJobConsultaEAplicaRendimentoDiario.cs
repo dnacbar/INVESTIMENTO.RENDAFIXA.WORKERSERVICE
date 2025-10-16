@@ -1,7 +1,7 @@
 ﻿using DN.LOG.LIBRARY.MODEL;
 using DN.LOG.LIBRARY.MODEL.ENUM;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.Servico;
 using Quartz;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -39,7 +39,6 @@ public class CronJobConsultaEAplicaRendimentoDiario(ILogger<CronJobConsultaEApli
             }
             else
                 ex.CreateLog(_logger, EnumLogLevel.Critical);
-
         }
         finally
         {

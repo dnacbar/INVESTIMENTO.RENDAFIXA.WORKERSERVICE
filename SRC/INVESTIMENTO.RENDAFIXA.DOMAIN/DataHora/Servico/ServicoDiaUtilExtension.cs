@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.DataHora.Servico;
+﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.DataHora.Servico;
 
 public static class ServicoDiaUtilExtension
 {

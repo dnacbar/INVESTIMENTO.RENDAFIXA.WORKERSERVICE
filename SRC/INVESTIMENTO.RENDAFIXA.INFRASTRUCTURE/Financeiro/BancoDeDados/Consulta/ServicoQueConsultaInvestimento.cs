@@ -1,12 +1,12 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Indice;
 using System.Data;
 using System.Data.Common;
 
-namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
+namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
 public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaInvestimento
 {
@@ -35,7 +35,8 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
 	                   AND CAST(GETDATE() AS DATE) = P.DT_POSICAO
 	                 WHERE CAST(GETDATE() AS DATE) <= I.DT_FINAL 
 	                   AND BO_LIQUIDADO = CAST(0 AS BIT)
-	                   AND P.ID_INVESTIMENTO IS NULL";
+	                   AND P.ID_INVESTIMENTO IS NULL
+					   AND I.CD_INVESTIMENTO = (SELECT MAX(CD_INVESTIMENTO) FROM INVESTIMENTO WHERE I.ID_INVESTIMENTO = ID_INVESTIMENTO)";
 
         try
         {

@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
+﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.Enum;
 
 public enum EnumTipoImposto
 {

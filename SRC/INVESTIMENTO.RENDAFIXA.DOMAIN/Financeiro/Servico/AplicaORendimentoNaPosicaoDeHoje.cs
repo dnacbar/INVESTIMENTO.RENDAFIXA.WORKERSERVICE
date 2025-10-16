@@ -1,12 +1,12 @@
-﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
+﻿using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 using Microsoft.Extensions.Logging;
 using System.Transactions;
 
-namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
+namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.Servico;
 
 public class AplicaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
     ILogger<AplicaORendimentoNaPosicaoDeHoje> _logger,
