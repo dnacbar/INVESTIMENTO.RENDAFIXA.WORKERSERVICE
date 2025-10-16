@@ -5,8 +5,8 @@ public static class ServicoQueCalculaDiaUtilExtension
     public static int CalculaDiaUtilEntreDatas(this DateTime dataInicial, DateTime dataFinal)
     {
         if (dataInicial > dataFinal)
-            throw new ArgumentException("A data inicial não pode ser maior que a data final.");
-    
+            throw new ArgumentException($"A data inicial tem que ser menor que a data final! Data inicial: [{dataInicial}] data final: [{dataFinal}]");
+
         int totalDias = (dataFinal - dataInicial).Days + 1;
         int semanasCompletas = totalDias / 7;
         int diasUteis = semanasCompletas * 5;
