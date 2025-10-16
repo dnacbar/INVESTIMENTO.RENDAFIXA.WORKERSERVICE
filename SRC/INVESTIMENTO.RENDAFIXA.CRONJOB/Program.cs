@@ -4,12 +4,10 @@ var builder = Host.CreateApplicationBuilder(args);
 
 InjecaoDeDependencia.AdicionaInjecaoDeDependencia(builder);
 
+if (!builder.Environment.IsProduction())
+    builder.Services.AddWindowsService();
+else
+    builder.Services.AddSystemd();
+
 var host = builder.Build();
 host.Run();
-
-
-class ConfiguraCronJob
-{
-    public string Diario { get; set; } = string.Empty;
-    public string Erro { get; set; } = string.Empty;
-}

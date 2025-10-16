@@ -1,8 +1,5 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;

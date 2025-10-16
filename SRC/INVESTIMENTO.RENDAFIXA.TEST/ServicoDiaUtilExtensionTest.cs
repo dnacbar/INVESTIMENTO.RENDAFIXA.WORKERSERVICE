@@ -13,7 +13,7 @@ namespace INVESTIMENTO.RENDAFIXA.TEST
             var diasUteisEsperados = 16; // Considerando que finais de semana não são dias úteis
 
             // Execução
-            var diasUteisCalculados = ServicoDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
+            var diasUteisCalculados = ServicoQueCalculaDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
 
             // Validação
             Assert.Equal(diasUteisEsperados, diasUteisCalculados);
@@ -26,7 +26,7 @@ namespace INVESTIMENTO.RENDAFIXA.TEST
             var data = new DateTime(2025, 5, 5); // Segunda-feira
 
             // Execução
-            var diasUteisCalculados = ServicoDiaUtilExtension.CalculaDiaUtilEntreDatas(data, data);
+            var diasUteisCalculados = ServicoQueCalculaDiaUtilExtension.CalculaDiaUtilEntreDatas(data, data);
 
             // Validação
             Assert.Equal(1, diasUteisCalculados);
@@ -40,7 +40,7 @@ namespace INVESTIMENTO.RENDAFIXA.TEST
             var dataFinal = new DateTime(2025, 5, 4);   // Domingo
 
             // Execução
-            var diasUteisCalculados = ServicoDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
+            var diasUteisCalculados = ServicoQueCalculaDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
 
             // Validação
             Assert.Equal(0, diasUteisCalculados);
@@ -55,7 +55,7 @@ namespace INVESTIMENTO.RENDAFIXA.TEST
             var diasUteisEsperados = 3; // 30/05 (sexta), 02/06 (segunda), 03/06 (terça)
 
             // Execução
-            var diasUteisCalculados = ServicoDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
+            var diasUteisCalculados = ServicoQueCalculaDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
 
             // Validação
             Assert.Equal(diasUteisEsperados, diasUteisCalculados);
@@ -69,7 +69,7 @@ namespace INVESTIMENTO.RENDAFIXA.TEST
             var dataFinal = new DateTime(2025, 5, 4);
 
             // Execução
-            Assert.Throws<ArgumentException>(() => ServicoDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal));
+            Assert.Throws<ArgumentException>(() => ServicoQueCalculaDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal));
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace INVESTIMENTO.RENDAFIXA.TEST
             var diasUteisEsperados = 5;
 
             // Execução
-            var diasUteisCalculados = ServicoDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
+            var diasUteisCalculados = ServicoQueCalculaDiaUtilExtension.CalculaDiaUtilEntreDatas(dataInicial, dataFinal);
 
             // Validação
             Assert.Equal(diasUteisEsperados, diasUteisCalculados);

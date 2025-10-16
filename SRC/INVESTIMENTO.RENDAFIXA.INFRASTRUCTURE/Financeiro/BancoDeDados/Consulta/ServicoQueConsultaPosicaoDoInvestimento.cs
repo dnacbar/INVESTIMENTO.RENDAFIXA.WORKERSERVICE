@@ -9,8 +9,7 @@ public class ServicoQueConsultaPosicaoDoInvestimento(IDbConnection _dbConnection
 {
     public async Task<Posicao> ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(Investimento investimento, CancellationToken token)
     {
-        const string sql = @"SELECT P.[ID_INVESTIMENTO]
-                          ,P.[ID_POSICAO]
+        const string sql = @"SELECT P.[ID_POSICAO]
                           ,P.[NM_VALORBRUTOTOTAL]
                           ,P.[NM_VALORLIQUIDOTOTAL]
                           ,P.[NM_VALORBRUTO]

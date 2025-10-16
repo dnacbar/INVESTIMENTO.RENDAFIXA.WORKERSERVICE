@@ -1,7 +1,5 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Indice;
 using System.Data;
 using System.Data.Common;

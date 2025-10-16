@@ -1,6 +1,6 @@
 ﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.DataHora.Servico;
 
-public static class ServicoDiaUtilExtension
+public static class ServicoQueCalculaDiaUtilExtension
 {
     public static int CalculaDiaUtilEntreDatas(this DateTime dataInicial, DateTime dataFinal)
     {

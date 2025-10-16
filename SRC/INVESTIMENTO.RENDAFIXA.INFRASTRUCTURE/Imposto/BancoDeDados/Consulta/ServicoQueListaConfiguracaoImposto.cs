@@ -1,7 +1,5 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 using System.Data;
 using System.Data.Common;
 
@@ -11,9 +9,7 @@ public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : I
 {
     public async Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {
-        var sql = @"USE [DBRENDAFIXA]
-
-	                SELECT I.[ID_IMPOSTO]
+        var sql = @"SELECT I.[ID_IMPOSTO]
 	                      ,[ID_CONFIGURACAOIMPOSTO]
 	                      ,[NM_RENDIMENTO]
 	                      ,[NM_DIASUTEIS]

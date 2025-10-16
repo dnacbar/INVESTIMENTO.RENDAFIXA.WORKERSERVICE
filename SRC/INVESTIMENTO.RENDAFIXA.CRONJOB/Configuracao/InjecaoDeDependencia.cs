@@ -4,7 +4,6 @@ using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;
@@ -19,7 +18,7 @@ public static class InjecaoDeDependencia
     {
         InvestimentoRendaFixaWorkerService investimentoRendaFixaWorkerService;
 
-        if (builder.Environment.IsDevelopment())
+        if (!builder.Environment.IsProduction())
             investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
         else
         {
@@ -41,7 +40,7 @@ public static class InjecaoDeDependencia
 
         ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
         ConfiguraBancoDeDados(builder.Services);
-        ConfiguraQuartz(builder, investimentoRendaFixaWorkerService.ConfiguraCronJobAplicaRendimento);
+        ConfiguraQuartz(builder, investimentoRendaFixaWorkerService.CronJobAplicaRendimento);
         ConfiguraServicoCronJob(builder.Services);
 
         builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
@@ -69,7 +68,7 @@ public static class InjecaoDeDependencia
         service.AddSingleton<IServicoQueAtualizaInvestimento, ServicoQueAtualizaInvestimento>();
     }
 
-    private static void ConfiguraQuartz(IHostApplicationBuilder builder, ConfiguraCronJobAplicaRendimento configuraCronJobAplicaRendimento)
+    private static void ConfiguraQuartz(IHostApplicationBuilder builder, CronJobAplicaRendimento configuraCronJobAplicaRendimento)
     {
         builder.Services.Configure<QuartzOptions>(x =>
         {
@@ -87,19 +86,35 @@ public static class InjecaoDeDependencia
             x.AddJob<CronJobConsultaEAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
             x.AddJob<CronJobConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
-            var verificaSeEstaNoAmbienteDeProducao = builder.Environment.IsProduction();
+            if (builder.Environment.IsDevelopment())
+            {
+                x.AddTrigger(x => x
+                    .ForJob(rendimentoDiarioJobKey)
+                    .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
+                    .StartNow()
+                     //.WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
+                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
 
-            x.AddTrigger(x => x
-                .ForJob(rendimentoDiarioJobKey)
-                .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
-
-            x.AddTrigger(x => x
-                .ForJob(rendimentoComErroJobKey)
-                .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
-                .StartNow()
-                .WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
+                x.AddTrigger(x => x
+                    .ForJob(rendimentoComErroJobKey)
+                    .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
+                    .StartNow()
+                    //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
+                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(400).RepeatForever()));
+            }
+            else
+            {
+                x.AddTrigger(x => x
+                    .ForJob(rendimentoDiarioJobKey)
+                    .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
+                    .StartNow()
+                    .WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
+                x.AddTrigger(x => x
+                    .ForJob(rendimentoComErroJobKey)
+                    .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
+                    .StartNow()
+                    .WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
+            }
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
     }
