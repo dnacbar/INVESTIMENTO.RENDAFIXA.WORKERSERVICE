@@ -8,6 +8,43 @@ namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 
 public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaInvestimento
 {
+    public async Task<List<Investimento>> ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(CancellationToken token)
+    {
+        const string sql = @"SELECT I.ID_INVESTIMENTO, 
+	                         	    I.CD_INVESTIMENTO,
+	                         	    I.NM_VALORFINAL,
+	                         	    I.NM_VALORIMPOSTO
+	                           FROM INVESTIMENTO I WITH (NOLOCK)
+	                           LEFT JOIN RESGATE R WITH (NOLOCK)
+	                             ON I.ID_INVESTIMENTO = R.ID_INVESTIMENTO
+	                            AND I.CD_INVESTIMENTO = R.ID_RESGATE
+	                          WHERE I.BO_LIQUIDADO = CAST(1 AS BIT)
+	                            AND R.ID_INVESTIMENTO IS NULL
+	                            AND I.CD_INVESTIMENTO = (SELECT MAX(CD_INVESTIMENTO) FROM INVESTIMENTO WHERE ID_INVESTIMENTO = I.ID_INVESTIMENTO)";
+
+        try
+        {
+            using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
+
+            if (!dReader.HasRows)
+                throw new NotFoundException($"Nenhum investimento liquidado foi encontrado para adicionar resgate!");
+
+            var retorno = new List<Investimento>();
+
+            while (await dReader.ReadAsync(token))
+                retorno.Add(new Investimento(Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),
+                       Convert.ToByte(dReader["CD_INVESTIMENTO"]),
+                       Convert.ToDecimal(dReader["NM_VALORFINAL"]),
+                       Convert.ToDecimal(dReader["NM_VALORIMPOSTO"])));
+
+            return retorno;
+        }
+        catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
+        {
+            throw new DataBaseException("Erro ao consultar investimentos liquidados para adicionar resgate!", ex);
+        }
+    }
+
     public async Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token)
     {
         const string sql = @"SELECT I.[ID_INVESTIMENTO]
@@ -66,7 +103,7 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
         }
         catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
         {
-            throw new DataBaseException("Erro ao consultar investimentos para aplicar rendimento diário.", ex);
+            throw new DataBaseException("Erro ao consultar investimentos para aplicar rendimento diário!", ex);
         }
     }
 }

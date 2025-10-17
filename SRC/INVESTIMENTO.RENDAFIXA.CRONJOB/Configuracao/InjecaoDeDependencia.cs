@@ -4,6 +4,10 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;
@@ -40,7 +44,8 @@ public static class InjecaoDeDependencia
 
         ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
         ConfiguraBancoDeDados(builder.Services);
-        ConfiguraQuartz(builder, investimentoRendaFixaWorkerService.CronJobAplicaRendimento);
+        ConfiguraQuartzAdicionaRendimento(builder, investimentoRendaFixaWorkerService.CronJobAdicionaRendimento);
+        ConfiguraQuartzResgataLiquidado(builder, investimentoRendaFixaWorkerService.CronJobResgataLiquidado);
         ConfiguraServicoCronJob(builder.Services);
 
         builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
@@ -58,17 +63,19 @@ public static class InjecaoDeDependencia
     private static void ConfiguraBancoDeDados(IServiceCollection service)
     {
         //Consulta
-        service.AddSingleton<IServicoQueListaConfiguracaoImposto, ServicoQueListaConfiguracaoImposto>();
+        service.AddSingleton<IServicoQueConsultaBloqueioInvestimento, ServicoQueConsultaBloqueioInvestimento>();
         service.AddSingleton<IServicoQueConsultaInvestimento, ServicoQueConsultaInvestimento>();
         service.AddSingleton<IServicoQueConsultaPosicaoDoInvestimento, ServicoQueConsultaPosicaoDoInvestimento>();
+        service.AddSingleton<IServicoQueConsultaConfiguracaoImposto, ServicoQueConsultaConfiguracaoImposto>();
 
         //Manipula
-        service.AddSingleton<IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento, ServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento>();
-        service.AddSingleton<IServicoQueAdicionaOuAtualizaPosicaoInvestimento, ServicoQueAdicionaOuAtualizaPosicaoInvestimento>();
-        service.AddSingleton<IServicoQueAtualizaInvestimento, ServicoQueAtualizaInvestimento>();
+        service.AddSingleton<IServicoQueManipulaInvestimento, ServicoQueManipulaInvestimento>();
+        service.AddSingleton<IServicoQueManipulaPosicaoInvestimento, ServicoQueManipulaPosicaoInvestimento>();
+        service.AddSingleton<IServicoQueManipulaPosicaoImpostoInvestimento, ServicoQueManipulaPosicaoImpostoInvestimento>();
+        service.AddSingleton<IServicoQueManipulaResgate, ServicoQueManipulaResgate>();
     }
 
-    private static void ConfiguraQuartz(IHostApplicationBuilder builder, CronJobAplicaRendimento configuraCronJobAplicaRendimento)
+    private static void ConfiguraQuartzAdicionaRendimento(IHostApplicationBuilder builder, CronJobAdicionaRendimento cronJobAplicaRendimento)
     {
         builder.Services.Configure<QuartzOptions>(x =>
         {
@@ -83,10 +90,7 @@ public static class InjecaoDeDependencia
             var rendimentoDiarioJobKey = new JobKey("rendimentoDiarioJobKey", "aplicaRendimentoGroup");
             var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
 
-            //var resgateLiquidadoJobKey = new JobKey("resgateLiquidadoJobKey", "resgataLiquidadoGroup");
-            //var resgateComErroJobKey = new JobKey("resgateComErroJobKey", "resgataLiquidadoGroup");
-
-            x.AddJob<CronJobConsultaEAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
+            x.AddJob<CronJobConsultaEAdicionaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
             x.AddJob<CronJobConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
             if (builder.Environment.IsDevelopment())
@@ -97,27 +101,13 @@ public static class InjecaoDeDependencia
                     .StartNow()
                      //.WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
                      .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
-
+                
                 x.AddTrigger(x => x
                     .ForJob(rendimentoComErroJobKey)
                     .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
                     .StartNow()
                     //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(400).RepeatForever()));
-
-                //x.AddTrigger(x => x
-                //    .ForJob(resgateLiquidadoJobKey)
-                //    .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
-                //    .StartNow()
-                //    //.WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
-                //    .WithSimpleSchedule(x => x.WithIntervalInSeconds(300).RepeatForever()));
-                //
-                //x.AddTrigger(x => x
-                //    .ForJob(resgateComErroJobKey)
-                //    .WithIdentity("resgateComErroJobKey", "resgataLiquidadoGroup")
-                //    .StartNow()
-                //    //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
-                //    .WithSimpleSchedule(x => x.WithIntervalInSeconds(300).RepeatForever()));
             }
             else
             {
@@ -125,13 +115,50 @@ public static class InjecaoDeDependencia
                     .ForJob(rendimentoDiarioJobKey)
                     .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
                     .StartNow()
-                    .WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
+                    .WithCronSchedule(cronJobAplicaRendimento.Diario));
 
                 x.AddTrigger(x => x
                     .ForJob(rendimentoComErroJobKey)
                     .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
                     .StartNow()
-                    .WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
+                    .WithCronSchedule(cronJobAplicaRendimento.Erro));
+            }
+        });
+        builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
+    }
+
+    private static void ConfiguraQuartzResgataLiquidado(IHostApplicationBuilder builder, CronJobResgataLiquidado cronJobResgataLiquidado)
+    {
+        builder.Services.Configure<QuartzOptions>(x =>
+        {
+            x.Scheduling.IgnoreDuplicates = true;
+            x.Scheduling.OverWriteExistingData = true;
+        });
+        builder.Services.AddQuartz(x =>
+        {
+            x.SchedulerId = "RendaFixaCronJobId";
+            x.SchedulerName = "RendaFixaCronJobName";
+
+            var resgateLiquidadoJobKey = new JobKey("resgateLiquidadoJobKey", "resgataLiquidadoGroup");
+
+            x.AddJob<CronJobConsultaEResgataInvestimentoLiquidado>(x => x.WithIdentity(resgateLiquidadoJobKey));
+
+            if (builder.Environment.IsDevelopment())
+            {
+                x.AddTrigger(x => x
+                    .ForJob(resgateLiquidadoJobKey)
+                    .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
+                    .StartNow()
+                    //.WithCronSchedule(cronJobResgataLiquidado.Diario));
+                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(300).RepeatForever()));
+            }
+            else
+            {
+                x.AddTrigger(x => x
+                    .ForJob(resgateLiquidadoJobKey)
+                    .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
+                    .StartNow()
+                    .WithCronSchedule(cronJobResgataLiquidado.Diario));
             }
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
@@ -139,6 +166,7 @@ public static class InjecaoDeDependencia
 
     private static void ConfiguraServicoCronJob(IServiceCollection service)
     {
-        service.AddSingleton<AplicaORendimentoNaPosicaoDeHoje>();
+        service.AddSingleton<AdicionaORendimentoNaPosicaoDeHoje>();
+        service.AddSingleton<AdicionaOResgateNoInvestimentoLiquidado>();
     }
 }

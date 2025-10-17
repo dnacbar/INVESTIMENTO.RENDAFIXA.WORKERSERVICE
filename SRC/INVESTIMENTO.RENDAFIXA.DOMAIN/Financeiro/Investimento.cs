@@ -34,7 +34,7 @@ public class Investimento
     public Investimento(Indexador indexador, Guid idInvestimento, byte cdInvestimento, Guid idInvestidor, string txDocumentoFederal, decimal nmValorInicial, decimal nmValorFinal, decimal nmValorImposto,
         decimal nmTaxaRendimento, decimal nmTaxaAdicional, DateTime dtInicial, DateTime dtFinal, bool boLiquidado, bool boIsentoImposto)
     {
-        Indexador = indexador ?? throw new DomainException("Indexador tem que ser preenchido!");
+        Indexador = indexador;
         IdInvestimento = idInvestimento;
         CdInvestimento = cdInvestimento;
         IdInvestidor = idInvestidor;
@@ -53,15 +53,23 @@ public class Investimento
         ValidaInvestimento();
     }
 
+    public Investimento(Guid idInvestimento, byte cdInvestimento, decimal nmValorFinal, decimal nmValorImposto)
+    {
+        IdInvestimento = idInvestimento;
+        CdInvestimento = cdInvestimento;
+        NmValorFinal = nmValorFinal;
+        NmValorImposto = nmValorImposto;
+    }
+
     /// <summary>
     /// Indexador associado ao investimento.
     /// </summary>
-    public virtual Indexador Indexador { get; }
+    public Indexador Indexador { get; } = null!;
 
     /// <summary>
     /// Posição atual do investimento.
     /// </summary>
-    public virtual Posicao Posicao { get; private set; } = null!;
+    public Posicao Posicao { get; private set; } = null!;
 
     public Guid IdInvestimento { get; }
     public byte CdInvestimento { get; }

@@ -8,21 +8,21 @@ using System.Transactions;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
-public class AplicaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
-    ILogger<AplicaORendimentoNaPosicaoDeHoje> _logger,
-    IServicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento _servicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento,
-    IServicoQueAdicionaOuAtualizaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,
-    IServicoQueAtualizaInvestimento _servicoQueAtualizaInvestimentoComRendimento,
-    IServicoQueListaConfiguracaoImposto _servicoQueListaConfiguracaoImposto,
-    IServicoQueConsultaInvestimento _servicoQueListaInvestimentoSemBloqueio,
-    IServicoQueConsultaPosicaoDoInvestimento _servicoQueObtemAPosicaoDoInvestimento)
+public class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
+    ILogger<AdicionaORendimentoNaPosicaoDeHoje> _logger,
+    IServicoQueManipulaPosicaoImpostoInvestimento _servicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento,
+    IServicoQueManipulaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,
+    IServicoQueManipulaInvestimento _servicoQueAtualizaInvestimento,
+    IServicoQueConsultaConfiguracaoImposto _servicoQueListaConfiguracaoImposto,
+    IServicoQueConsultaInvestimento _servicoQueConsultaInvestimento,
+    IServicoQueConsultaPosicaoDoInvestimento _servicoQueConsultaPosicaoDoInvestimento)
 {
     public async Task ExecutaAsync(CancellationToken token)
     {
         _logger.LogWarning("Iniciando aplicação de rendimento diário - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeConfiguracaoDoImposto = await _servicoQueListaConfiguracaoImposto.ListaConfiguracaoImpostoAsync(token);
-        var listaDeInvestimento = await _servicoQueListaInvestimentoSemBloqueio.ListaInvestimentoParaCalculoDePosicaoAsync(token);
+        var listaDeInvestimento = await _servicoQueConsultaInvestimento.ListaInvestimentoParaCalculoDePosicaoAsync(token);
 
         await ProcessaPosicaoInvestimentoAsync(listaDeInvestimento, listaDeConfiguracaoDoImposto, token);
 
@@ -56,7 +56,7 @@ public class AplicaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerServic
 
     private async Task ProcessaInvestimentoIndividualAsync(Investimento investimento, List<ConfiguracaoImposto> configuracaoImpostos, CancellationToken token)
     {
-        var posicao = await _servicoQueObtemAPosicaoDoInvestimento.ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(investimento, token);
+        var posicao = await _servicoQueConsultaPosicaoDoInvestimento.ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(investimento, token);
 
         await posicao.CalculaPosicaoInvestimentoAsync(configuracaoImpostos, token);
 
@@ -67,7 +67,7 @@ public class AplicaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerServic
     {
         using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, _investimentoRendaFixaWorkerService.TempoLimiteTransacion), TransactionScopeAsyncFlowOption.Enabled);
 
-        await _servicoQueAtualizaInvestimentoComRendimento.AtualizaInvestimentoComRendimentoDaPosicaoAsync(investimento, token);
+        await _servicoQueAtualizaInvestimento.AtualizaInvestimentoComRendimentoDaPosicaoAsync(investimento, token);
 
         await _servicoQueAdicionaOuAtualizaPosicaoInvestimento.AdicionaPosicaoInvestimentoAsync(posicao, token);
 

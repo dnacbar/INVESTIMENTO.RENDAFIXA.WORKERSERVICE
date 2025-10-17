@@ -1,6 +1,6 @@
 ﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 
-public interface IServicoQueAtualizaInvestimento
+public interface IServicoQueManipulaInvestimento
 {
     Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token);
 }

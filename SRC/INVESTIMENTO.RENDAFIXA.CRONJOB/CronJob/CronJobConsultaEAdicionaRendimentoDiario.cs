@@ -8,8 +8,8 @@ using System.Security.Cryptography;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
-public class CronJobConsultaEAplicaRendimentoDiario(ILogger<CronJobConsultaEAplicaRendimentoDiario> _logger,
-    AplicaORendimentoNaPosicaoDeHoje _aplicaRendimentoNaPosicaoDeHoje) : IJob
+public class CronJobConsultaEAdicionaRendimentoDiario(ILogger<CronJobConsultaEAdicionaRendimentoDiario> _logger,
+    AdicionaORendimentoNaPosicaoDeHoje _aplicaRendimentoNaPosicaoDeHoje) : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {
