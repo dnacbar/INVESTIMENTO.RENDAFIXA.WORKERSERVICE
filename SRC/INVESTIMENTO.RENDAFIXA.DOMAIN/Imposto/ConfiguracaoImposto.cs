@@ -1,7 +1,7 @@
 ﻿using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.Enum;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 
 public class ConfiguracaoImposto(byte idImposto, byte idConfiguracaoImposto, decimal nmRendimento, short nmDiasUteis) : Imposto(idImposto)
 {

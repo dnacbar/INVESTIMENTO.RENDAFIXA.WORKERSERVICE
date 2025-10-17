@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Indice;
+﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
 
 public class Indexador
 {

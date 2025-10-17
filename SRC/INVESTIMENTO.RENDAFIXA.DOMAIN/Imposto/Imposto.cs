@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto;
+﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 
 public abstract class Imposto(byte idImposto)
 {

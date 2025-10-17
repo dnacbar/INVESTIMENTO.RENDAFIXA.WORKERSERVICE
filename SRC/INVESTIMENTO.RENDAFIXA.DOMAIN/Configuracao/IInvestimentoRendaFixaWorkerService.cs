@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
+﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 
 public interface IInvestimentoRendaFixaWorkerService
 {

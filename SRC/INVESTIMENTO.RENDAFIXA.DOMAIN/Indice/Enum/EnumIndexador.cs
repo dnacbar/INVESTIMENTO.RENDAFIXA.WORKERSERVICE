@@ -1,4 +1,4 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Indice.Enum;
+﻿namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Indice.Enum;
 
 public enum EnumIndexador
 {

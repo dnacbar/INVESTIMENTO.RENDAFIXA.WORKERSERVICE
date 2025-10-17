@@ -1,9 +1,9 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using System.Data;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 
 public class ServicoQueAtualizaInvestimento(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob) : IServicoQueAtualizaInvestimento
 {

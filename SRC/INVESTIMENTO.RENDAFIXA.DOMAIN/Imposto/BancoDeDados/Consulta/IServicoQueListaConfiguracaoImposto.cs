@@ -1,4 +1,6 @@
-﻿namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
+
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 
 public interface IServicoQueListaConfiguracaoImposto
 {

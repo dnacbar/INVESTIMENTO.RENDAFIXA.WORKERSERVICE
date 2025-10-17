@@ -1,8 +1,8 @@
-﻿using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.DataHora.Servico;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.Enum;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.DataHora.Servico;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
 public class ImpostoPosicao
 {
@@ -25,7 +25,7 @@ public class ImpostoPosicao
             return;
         }
 
-        NmValorImpostoIrrf = (Posicao.NmValorBruto - decimal.Zero) * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
+        NmValorImpostoIrrf = Posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
 
         ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Irrf, NmValorImpostoIrrf));
     }

@@ -1,9 +1,9 @@
 ﻿using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.Servico;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;
@@ -83,6 +83,9 @@ public static class InjecaoDeDependencia
             var rendimentoDiarioJobKey = new JobKey("rendimentoDiarioJobKey", "aplicaRendimentoGroup");
             var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
 
+            //var resgateLiquidadoJobKey = new JobKey("resgateLiquidadoJobKey", "resgataLiquidadoGroup");
+            //var resgateComErroJobKey = new JobKey("resgateComErroJobKey", "resgataLiquidadoGroup");
+
             x.AddJob<CronJobConsultaEAplicaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
             x.AddJob<CronJobConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
@@ -101,6 +104,20 @@ public static class InjecaoDeDependencia
                     .StartNow()
                     //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(400).RepeatForever()));
+
+                //x.AddTrigger(x => x
+                //    .ForJob(resgateLiquidadoJobKey)
+                //    .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
+                //    .StartNow()
+                //    //.WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
+                //    .WithSimpleSchedule(x => x.WithIntervalInSeconds(300).RepeatForever()));
+                //
+                //x.AddTrigger(x => x
+                //    .ForJob(resgateComErroJobKey)
+                //    .WithIdentity("resgateComErroJobKey", "resgataLiquidadoGroup")
+                //    .StartNow()
+                //    //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
+                //    .WithSimpleSchedule(x => x.WithIntervalInSeconds(300).RepeatForever()));
             }
             else
             {
@@ -109,6 +126,7 @@ public static class InjecaoDeDependencia
                     .WithIdentity("rendimentoDiarioJobKey", "aplicaRendimentoGroup")
                     .StartNow()
                     .WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
+
                 x.AddTrigger(x => x
                     .ForJob(rendimentoComErroJobKey)
                     .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")

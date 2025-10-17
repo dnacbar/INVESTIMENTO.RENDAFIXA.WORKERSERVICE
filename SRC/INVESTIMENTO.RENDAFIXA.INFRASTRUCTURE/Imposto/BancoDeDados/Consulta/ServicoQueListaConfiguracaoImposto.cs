@@ -1,9 +1,10 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using System.Data;
 using System.Data.Common;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 
 public class ServicoQueListaConfiguracaoImposto(IDbConnection _dbConnection) : IServicoQueListaConfiguracaoImposto
 {

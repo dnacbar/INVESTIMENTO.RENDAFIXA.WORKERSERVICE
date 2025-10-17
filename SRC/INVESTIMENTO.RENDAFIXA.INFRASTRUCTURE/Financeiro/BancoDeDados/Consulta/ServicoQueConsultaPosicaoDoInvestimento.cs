@@ -3,7 +3,7 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using System.Data;
 using System.Data.Common;
 
-namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
+namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 
 public class ServicoQueConsultaPosicaoDoInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaPosicaoDoInvestimento
 {
