@@ -7,4 +7,10 @@ public class FeriadoNacional(short idFeriado, DateTime dtFeriado, string txNome)
     public string TxNome { get; } = txNome;
 
     public void AtualizaDataFeriado() => DtFeriado = DtFeriado.AddYears(1);
+    public bool VerificaSeDataAtualEhFeriado() => DtFeriado.Date == DateTime.Today;
+}
+
+public static class FeriadoNacionalExtension
+{
+    public static bool VerificaSeDataAtualEstaNaListaDeFeriadoNacional(this IEnumerable<FeriadoNacional> listaDeFeriadoNacional) => listaDeFeriadoNacional.Any(feriado => feriado.VerificaSeDataAtualEhFeriado());
 }

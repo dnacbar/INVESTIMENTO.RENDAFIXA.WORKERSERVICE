@@ -1,4 +1,6 @@
-﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
@@ -7,12 +9,21 @@ using Microsoft.Extensions.Logging;
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
 public class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimentoNaPosicaoDeHoje> _logger,
-    IServicoQueConsultaInvestimento _servicoQueConsultaInvestimento,
     IServicoQueConsultaBloqueioInvestimento _servicoQueConsultaBloqueioInvestimento,
+    IServicoQueConsultaFeriadoNacional _servicoQueConsultaFeriadoNacional,
+    IServicoQueConsultaInvestimento _servicoQueConsultaInvestimento,
     IServicoQueManipulaResgate _servicoQueManipulaResgate)
 {
     public async Task ExecutaAsync(CancellationToken token)
     {
+        var listaDeFeriadoNacional = await _servicoQueConsultaFeriadoNacional.ListaAsync(token);
+
+        if (listaDeFeriadoNacional.VerificaSeDataAtualEstaNaListaDeFeriadoNacional())
+        {
+            _logger.LogWarning("Hoje é feriado nacional. Não será aplicado resgate de investimento liquidado - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
+            return;
+        }
+
         _logger.LogInformation("Iniciando adição de resgate em investimentos liquidados - {horario}", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeInvestimentoLiquidado = await _servicoQueConsultaInvestimento.ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(token);

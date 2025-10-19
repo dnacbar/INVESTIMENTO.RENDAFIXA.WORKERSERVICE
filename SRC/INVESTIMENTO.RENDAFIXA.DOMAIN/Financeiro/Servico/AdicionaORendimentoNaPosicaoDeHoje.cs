@@ -5,6 +5,8 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using Microsoft.Extensions.Logging;
 using System.Transactions;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
@@ -14,11 +16,20 @@ public class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerServ
     IServicoQueManipulaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,
     IServicoQueManipulaInvestimento _servicoQueAtualizaInvestimento,
     IServicoQueConsultaConfiguracaoImposto _servicoQueListaConfiguracaoImposto,
+    IServicoQueConsultaFeriadoNacional _servicoQueConsultaFeriadoNacional,
     IServicoQueConsultaInvestimento _servicoQueConsultaInvestimento,
     IServicoQueConsultaPosicaoDoInvestimento _servicoQueConsultaPosicaoDoInvestimento)
 {
     public async Task ExecutaAsync(CancellationToken token)
     {
+        var listaDeFeriadoNacional = await _servicoQueConsultaFeriadoNacional.ListaAsync(token);
+
+        if (listaDeFeriadoNacional.VerificaSeDataAtualEstaNaListaDeFeriadoNacional())
+        {
+            _logger.LogWarning("Hoje é feriado nacional. Não será aplicado rendimento diário na posição de hoje - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
+            return;
+        }
+
         _logger.LogWarning("Iniciando aplicação de rendimento diário - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeConfiguracaoDoImposto = await _servicoQueListaConfiguracaoImposto.ListaConfiguracaoImpostoAsync(token);

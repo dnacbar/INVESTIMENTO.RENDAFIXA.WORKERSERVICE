@@ -107,7 +107,7 @@ public static class InjecaoDeDependencia
             var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
 
             x.AddJob<CronJobConsultaEAdicionaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
-            x.AddJob<CronJobConsultaEAplicaRendimentoComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
+            x.AddJob<CronJobConsultaEAplicaRendimentoDiarioComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
             if (builder.Environment.IsDevelopment())
             {
