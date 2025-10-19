@@ -19,7 +19,7 @@ public class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimento
 
         await ProcessaInvestimentoLiquidadoAsync(listaDeInvestimentoLiquidado, token);
 
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimentoLiquidado.Count, DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos liquidados - {horario}.", [listaDeInvestimentoLiquidado.Count, DateTimeOffset.Now.ToLocalTime()]);
     }
 
     private async Task ProcessaInvestimentoLiquidadoAsync(List<Investimento> listaDeInvestimento, CancellationToken token)
@@ -37,14 +37,14 @@ public class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimento
             catch (Exception ex)
             {
                 falhas++;
-                _logger.LogError(ex, "Erro ao processar investimento {idInvestimento}.", investimento.IdInvestimento);
+                _logger.LogError(ex, "Erro ao processar investimento liquidado {idInvestimento}.", investimento.IdInvestimento);
             }
         }
 
-        _logger.LogWarning("Processados {processados} de {total} investimentos.", [processados, listaDeInvestimento.Count]);
+        _logger.LogWarning("Processados {processados} de {total} investimentos liquidados.", [processados, listaDeInvestimento.Count]);
 
         if (falhas > decimal.Zero)
-            _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos.", [falhas, listaDeInvestimento.Count]);
+            _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimento.Count]);
     }
 
     private async Task ProcessaInvestimentoLiquidadoIndividualAsync(Investimento investimento, CancellationToken token)

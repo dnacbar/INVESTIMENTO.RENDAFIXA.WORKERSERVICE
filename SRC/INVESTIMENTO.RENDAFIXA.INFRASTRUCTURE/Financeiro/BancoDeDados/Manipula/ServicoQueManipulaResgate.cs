@@ -46,7 +46,7 @@ public class ServicoQueManipulaResgate(IDbConnection _dbConnection, IInvestiment
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new DataBaseException("Erro ao adicionar resgate de investimento no banco de dados.", ex);
+            throw new DataBaseException($"Erro ao adicionar resgate de investimento! Investimento: [{resgate.IdInvestimento}] resgate: [{resgate.IdResgate}]", ex);
         }
     }
 }

@@ -1,10 +1,16 @@
 ﻿using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
@@ -42,17 +48,37 @@ public static class InjecaoDeDependencia
             investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         }
 
-        ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
-        ConfiguraBancoDeDados(builder.Services);
-        ConfiguraQuartzAdicionaRendimento(builder, investimentoRendaFixaWorkerService.CronJobAdicionaRendimento);
-        ConfiguraQuartzResgataLiquidado(builder, investimentoRendaFixaWorkerService.CronJobResgataLiquidado);
-        ConfiguraServicoCronJob(builder.Services);
-
         builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
         {
             return investimentoRendaFixaWorkerService;
         });
         builder.Services.AddLogging(b => b.AddConsole());
+
+        ConfiguraBancoDeDados(builder.Services);
+        ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
+        ConfiguraServicoCronJob(builder.Services);
+
+        // Quartz deve ser configurado após outros serviços 
+        ConfiguraQuartzAdicionaRendimento(builder, investimentoRendaFixaWorkerService.CronJobAdicionaRendimento);
+        ConfiguraQuartzResgataLiquidado(builder, investimentoRendaFixaWorkerService.CronJobResgataLiquidado);
+
+        // Hosted Service deve ser configurado após o Quartz para geração de logs
+        ConfiguraHostedService(builder.Services);
+    }
+
+    private static void ConfiguraBancoDeDados(IServiceCollection service)
+    {
+        service.AddSingleton<IServicoQueConsultaBloqueioInvestimento, ServicoQueConsultaBloqueioInvestimento>();
+        service.AddSingleton<IServicoQueConsultaConfiguracaoImposto, ServicoQueConsultaConfiguracaoImposto>();
+        service.AddSingleton<IServicoQueConsultaFeriadoNacional, ServicoQueConsultaFeriadoNacional>();
+        service.AddSingleton<IServicoQueConsultaInvestimento, ServicoQueConsultaInvestimento>();
+        service.AddSingleton<IServicoQueConsultaPosicaoDoInvestimento, ServicoQueConsultaPosicaoDoInvestimento>();
+
+        service.AddSingleton<IServicoQueManipulaFeriadoNacional, ServicoQueManipulaFeriadoNacional>();
+        service.AddSingleton<IServicoQueManipulaInvestimento, ServicoQueManipulaInvestimento>();
+        service.AddSingleton<IServicoQueManipulaPosicaoInvestimento, ServicoQueManipulaPosicaoInvestimento>();
+        service.AddSingleton<IServicoQueManipulaPosicaoImpostoInvestimento, ServicoQueManipulaPosicaoImpostoInvestimento>();
+        service.AddSingleton<IServicoQueManipulaResgate, ServicoQueManipulaResgate>();
     }
 
     private static void ConfiguraDbConnection(IServiceCollection services, string connectionString)
@@ -60,19 +86,9 @@ public static class InjecaoDeDependencia
         services.AddTransient<IDbConnection>(x => new SqlConnection(connectionString));
     }
 
-    private static void ConfiguraBancoDeDados(IServiceCollection service)
+    private static void ConfiguraHostedService(IServiceCollection service)
     {
-        //Consulta
-        service.AddSingleton<IServicoQueConsultaBloqueioInvestimento, ServicoQueConsultaBloqueioInvestimento>();
-        service.AddSingleton<IServicoQueConsultaInvestimento, ServicoQueConsultaInvestimento>();
-        service.AddSingleton<IServicoQueConsultaPosicaoDoInvestimento, ServicoQueConsultaPosicaoDoInvestimento>();
-        service.AddSingleton<IServicoQueConsultaConfiguracaoImposto, ServicoQueConsultaConfiguracaoImposto>();
-
-        //Manipula
-        service.AddSingleton<IServicoQueManipulaInvestimento, ServicoQueManipulaInvestimento>();
-        service.AddSingleton<IServicoQueManipulaPosicaoInvestimento, ServicoQueManipulaPosicaoInvestimento>();
-        service.AddSingleton<IServicoQueManipulaPosicaoImpostoInvestimento, ServicoQueManipulaPosicaoImpostoInvestimento>();
-        service.AddSingleton<IServicoQueManipulaResgate, ServicoQueManipulaResgate>();
+        service.AddHostedService<CronJobConsultaEAtualizaFeriadoNacional>();
     }
 
     private static void ConfiguraQuartzAdicionaRendimento(IHostApplicationBuilder builder, CronJobAdicionaRendimento cronJobAplicaRendimento)
@@ -168,5 +184,6 @@ public static class InjecaoDeDependencia
     {
         service.AddSingleton<AdicionaORendimentoNaPosicaoDeHoje>();
         service.AddSingleton<AdicionaOResgateNoInvestimentoLiquidado>();
+        service.AddSingleton<AtualizaOAnoDaListaDeFeriadoNacional>();
     }
 }

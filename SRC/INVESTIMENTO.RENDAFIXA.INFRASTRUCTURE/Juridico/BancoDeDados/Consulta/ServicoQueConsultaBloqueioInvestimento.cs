@@ -32,7 +32,7 @@ public class ServicoQueConsultaBloqueioInvestimento(IDbConnection _dbConnection)
         }
         catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
         {
-            throw new DataBaseException($"Erro ao consultar valor bloqueado total de investimento: [{bloqueioInvestimento.IdInvestimento}]!", ex);
+            throw new DataBaseException($"Erro ao consultar valor bloqueado total de investimento! Investimento: [{bloqueioInvestimento.IdInvestimento}]", ex);
         }
         finally
         {

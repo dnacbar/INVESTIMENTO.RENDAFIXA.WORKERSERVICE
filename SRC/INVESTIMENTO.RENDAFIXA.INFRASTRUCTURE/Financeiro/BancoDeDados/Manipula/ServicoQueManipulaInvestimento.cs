@@ -18,8 +18,7 @@ public class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, IInvest
                                    ,[TX_USUARIOATUALIZACAO] = @Usuario
                                    ,[DT_ATUALIZACAO] = GETDATE()
                               WHERE [ID_INVESTIMENTO] = @IdInvestimento
-                                AND [CD_INVESTIMENTO] = @CdInvestimento
-                                AND [ID_INVESTIDOR] = @IdInvestidor";
+                                AND [CD_INVESTIMENTO] = @CdInvestimento";
 
         var listaDeParametro = new
         {
@@ -38,7 +37,7 @@ public class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, IInvest
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new DataBaseException($"Erro ao atualizar o investimento: [{investimento.IdInvestimento}]!", ex);
+            throw new DataBaseException($"Erro ao atualizar o investimento! Investimento: [{investimento.IdInvestimento}] código investimento: [{investimento.CdInvestimento}]", ex);
         }
     }
 }

@@ -43,7 +43,7 @@ public class CronJobConsultaEAdicionaRendimentoDiario(ILogger<CronJobConsultaEAd
         finally
         {
             stopwatch.Stop();
-            _logger.LogWarning("Processamento concluído em {tempo} segundos. - {data}", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+            _logger.LogWarning("Processamento do rendimento diário concluído em {tempo} segundos - {data}.", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
         }
     }
 }

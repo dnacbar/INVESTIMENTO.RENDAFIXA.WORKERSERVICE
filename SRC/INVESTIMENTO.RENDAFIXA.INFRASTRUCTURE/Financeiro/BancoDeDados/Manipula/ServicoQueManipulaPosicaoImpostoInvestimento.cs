@@ -39,7 +39,7 @@ public class ServicoQueManipulaPosicaoImpostoInvestimento(IDbConnection _dbConne
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento: [{posicaoImposto.Posicao.Investimento.IdInvestimento}]!", ex);
+                throw new DataBaseException($"Erro ao adicionar a posição do imposto do investimento! Investimento: [{posicaoImposto.Posicao.Investimento.IdInvestimento}] código investimento: [{posicaoImposto.Posicao.Investimento.CdInvestimento}]", ex);
             }
         }
     }

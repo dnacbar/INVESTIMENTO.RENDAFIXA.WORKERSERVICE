@@ -11,17 +11,19 @@ public class ServicoQueConsultaConfiguracaoImposto(IDbConnection _dbConnection) 
 {
     public async Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {
-        var sql = @"SELECT I.[ID_IMPOSTO]
+        const string sql = @"SELECT I.[ID_IMPOSTO]
 	                      ,[ID_CONFIGURACAOIMPOSTO]
 	                      ,[NM_RENDIMENTO]
 	                      ,[NM_DIASUTEIS]
 	                  FROM [IMPOSTO] I
 	                 INNER JOIN [CONFIGURACAOIMPOSTO] CI
 	                    ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
-        if (_dbConnection.State != ConnectionState.Open)
-            _dbConnection.Open();
+
         try
         {
+            if (_dbConnection.State != ConnectionState.Open)
+                _dbConnection.Open();
+
             using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
 
             var retorno = new List<ConfiguracaoImposto>();

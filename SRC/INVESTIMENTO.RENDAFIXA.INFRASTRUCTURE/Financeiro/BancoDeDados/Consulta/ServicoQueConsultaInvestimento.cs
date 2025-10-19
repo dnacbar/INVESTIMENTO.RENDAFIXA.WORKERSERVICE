@@ -65,7 +65,7 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
 	                  FROM [INVESTIMENTO] I WITH (NOLOCK)
 	                  JOIN [INDEXADOR] IX WITH (NOLOCK)
                         ON I.ID_INDEXADOR = IX.ID_INDEXADOR
-	                  LEFT JOIN [POSICAO] P 
+	                  LEFT JOIN [POSICAO] P WITH (NOLOCK)
 	                    ON I.ID_INVESTIMENTO = P.ID_INVESTIMENTO
 	                   AND CAST(GETDATE() AS DATE) = P.DT_POSICAO
 	                 WHERE CAST(GETDATE() AS DATE) <= I.DT_FINAL 

@@ -18,7 +18,7 @@ public class CronJobConsultaEResgataInvestimentoLiquidado(ILogger<CronJobConsult
         try
         {
             using var scope = _logger.BeginScope("Job {JobId}.", context.FireInstanceId);
-            _logger.LogWarning("Iniciando processamento do rendimento diário - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+            _logger.LogWarning("Iniciando processamento do resgate em investimento liquidado - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
 
             await _adicionaOResgateNoInvestimentoLiquidado.ExecutaAsync(context.CancellationToken);
         }
@@ -43,7 +43,7 @@ public class CronJobConsultaEResgataInvestimentoLiquidado(ILogger<CronJobConsult
         finally
         {
             stopwatch.Stop();
-            _logger.LogWarning("Processamento concluído em {tempo} segundos. - {data}", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+            _logger.LogWarning("Processamento do resgate em investimento liquidado concluído em {tempo} segundos - {data}.", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
         }
     }
 }
