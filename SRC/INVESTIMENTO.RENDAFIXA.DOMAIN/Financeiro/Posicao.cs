@@ -157,7 +157,7 @@ public class Posicao
     /// Calcula a taxa diária do investimento.
     /// </summary>
     /// <returns>Taxa diária calculada com base na taxa anual</returns>
-    public decimal CalculaValorTaxaDiaria() => (decimal)Math.Pow(1 + (double)CalculaValorTaxaAnual(), Math.Round(1D / Financeiro.Investimento.QuantidadeDeDiaUtil, 8)) - 1;
+    public decimal CalculaValorTaxaDiaria() => (decimal)Math.Pow(1 + (double)CalculaValorTaxaAnual(), 1D / Investimento.QuantidadeDeDiaUtil) - 1;
 
     /// <summary>
     /// Valida os valores da posição, garantindo que as relações entre valores brutos e líquidos estejam corretas.

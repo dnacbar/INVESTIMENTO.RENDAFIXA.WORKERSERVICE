@@ -24,6 +24,9 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
 
         try
         {
+            if (_dbConnection.State != ConnectionState.Open)
+                _dbConnection.Open();
+
             using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
 
             if (!dReader.HasRows)
@@ -76,6 +79,9 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
 
         try
         {
+            if (_dbConnection.State != ConnectionState.Open)
+                _dbConnection.Open();
+
             using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
 
             if (!dReader.HasRows)

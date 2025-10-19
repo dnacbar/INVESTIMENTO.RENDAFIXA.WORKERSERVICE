@@ -48,6 +48,8 @@ public static class InjecaoDeDependencia
             investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         }
 
+        ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
+
         builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
         {
             return investimentoRendaFixaWorkerService;
@@ -55,7 +57,6 @@ public static class InjecaoDeDependencia
         builder.Services.AddLogging(b => b.AddConsole());
 
         ConfiguraBancoDeDados(builder.Services);
-        ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
         ConfiguraServicoCronJob(builder.Services);
 
         // Quartz deve ser configurado após outros serviços 
@@ -63,7 +64,7 @@ public static class InjecaoDeDependencia
         ConfiguraQuartzResgataLiquidado(builder, investimentoRendaFixaWorkerService.CronJobResgataLiquidado);
 
         // Hosted Service deve ser configurado após o Quartz para geração de logs
-        ConfiguraHostedService(builder.Services);
+        ConfiguraHostedService(builder.Services);   
     }
 
     private static void ConfiguraBancoDeDados(IServiceCollection service)
