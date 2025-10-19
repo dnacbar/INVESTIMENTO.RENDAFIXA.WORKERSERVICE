@@ -113,4 +113,35 @@ public class ServicoQueConsultaInvestimento(IDbConnection _dbConnection) : IServ
             throw new DataBaseException("Erro ao consultar investimentos para aplicar rendimento diário!", ex);
         }
     }
+
+    public async Task<List<Investimento>> ListaInvestimentoQueDeveSerLiquidadoPelaDataAsync(CancellationToken token)
+    {
+        const string sql = @"SELECT I.ID_INVESTIMENTO, 
+	                         	    I.CD_INVESTIMENTO,
+                                    I.DT_FINAL
+	                           FROM INVESTIMENTO I WITH (NOLOCK)
+	                          WHERE I.BO_LIQUIDADO = CAST(0 AS BIT)
+	                            AND CAST(GETDATE() AS DATE) > I.DT_FINAL";
+
+        try
+        {
+            if (_dbConnection.State != ConnectionState.Open)
+                _dbConnection.Open();
+
+            using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
+
+            var retorno = new List<Investimento>();
+
+            while (await dReader.ReadAsync(token))
+                retorno.Add(new Investimento(Guid.Parse(dReader["ID_INVESTIMENTO"].ToString()!),
+                       Convert.ToByte(dReader["CD_INVESTIMENTO"]),
+                       Convert.ToDateTime(dReader["DT_FINAL"])));
+
+            return retorno;
+        }
+        catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
+        {
+            throw new DataBaseException("Erro ao consultar investimentos liquidados para adicionar resgate!", ex);
+        }
+    }
 }

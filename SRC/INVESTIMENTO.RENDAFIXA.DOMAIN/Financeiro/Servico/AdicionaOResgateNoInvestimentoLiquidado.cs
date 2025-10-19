@@ -24,25 +24,23 @@ public class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimento
             return;
         }
 
+        await ProcessaOResgateDoInvestimentoLiquidadoAsync(token);
+    }
+
+    private async Task ProcessaOResgateDoInvestimentoLiquidadoAsync(CancellationToken token)
+    {
         _logger.LogInformation("Iniciando adição de resgate em investimentos liquidados - {horario}", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeInvestimentoLiquidado = await _servicoQueConsultaInvestimento.ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(token);
 
-        await ProcessaInvestimentoLiquidadoAsync(listaDeInvestimentoLiquidado, token);
-
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos liquidados - {horario}.", [listaDeInvestimentoLiquidado.Count, DateTimeOffset.Now.ToLocalTime()]);
-    }
-
-    private async Task ProcessaInvestimentoLiquidadoAsync(List<Investimento> listaDeInvestimento, CancellationToken token)
-    {
         var processados = 0;
         var falhas = 0;
 
-        foreach (var investimento in listaDeInvestimento)
+        foreach (var investimento in listaDeInvestimentoLiquidado)
         {
             try
             {
-                await ProcessaInvestimentoLiquidadoIndividualAsync(investimento, token);
+                await ProcessaOResgateDoInvestimentoLiquidadoIndividualAsync(investimento, token);
                 processados++;
             }
             catch (Exception ex)
@@ -52,13 +50,15 @@ public class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimento
             }
         }
 
-        _logger.LogWarning("Processados {processados} de {total} investimentos liquidados.", [processados, listaDeInvestimento.Count]);
+        _logger.LogWarning("Processados {processados} de {total} investimentos liquidados.", [processados, listaDeInvestimentoLiquidado.Count]);
 
         if (falhas > decimal.Zero)
-            _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimento.Count]);
+            _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimentoLiquidado.Count]);
+
+        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos liquidados - {horario}.", [listaDeInvestimentoLiquidado.Count, DateTimeOffset.Now.ToLocalTime()]);
     }
 
-    private async Task ProcessaInvestimentoLiquidadoIndividualAsync(Investimento investimento, CancellationToken token)
+    private async Task ProcessaOResgateDoInvestimentoLiquidadoIndividualAsync(Investimento investimento, CancellationToken token)
     {
         var nmValorBloqueadoTotal = await _servicoQueConsultaBloqueioInvestimento.ObtemValorBloqueadoTotalAsync(new BloqueioInvestimento(investimento.IdInvestimento), token);
 

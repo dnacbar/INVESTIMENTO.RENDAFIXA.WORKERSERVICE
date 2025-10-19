@@ -40,4 +40,31 @@ public class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, IInvest
             throw new DataBaseException($"Erro ao atualizar o investimento! Investimento: [{investimento.IdInvestimento}] código investimento: [{investimento.CdInvestimento}]", ex);
         }
     }
+
+    public Task AtualizaInvestimentoLiquidadoPelaDataAsync(Investimento investimento, CancellationToken token)
+    {
+        const string sql = @"UPDATE [INVESTIMENTO]
+                                SET [BO_LIQUIDADO] = @BoLiquidado
+                                   ,[TX_USUARIOATUALIZACAO] = @Usuario
+                                   ,[DT_ATUALIZACAO] = GETDATE()
+                              WHERE [ID_INVESTIMENTO] = @IdInvestimento
+                                AND [CD_INVESTIMENTO] = @CdInvestimento";
+
+        var listaDeParametro = new
+        {
+            investimento.IdInvestimento,
+            investimento.CdInvestimento,
+            investimento.BoLiquidado,
+            _usuarioInvestimentoRendaFixaCronJob.Usuario
+        };
+
+        try
+        {
+            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            throw new DataBaseException($"Erro ao atualizar o investimento liquidado pela data! Investimento: [{investimento.IdInvestimento}] código investimento: [{investimento.CdInvestimento}]", ex);
+        }
+    }
 }

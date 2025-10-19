@@ -28,25 +28,25 @@ public static class InjecaoDeDependencia
     {
         InvestimentoRendaFixaWorkerService investimentoRendaFixaWorkerService;
 
-        if (!builder.Environment.IsProduction())
-            investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
-        else
-        {
-            var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.WORKERSERVICE");
-
-            const int nativeTagSizeByte = 16;
-            var keyBytes = Convert.FromBase64String("UXGoyfisUfj+1C0k+iK+kgaDnNeB7kWoPmDm0pALKCs=");
-            var nonceBytes = Convert.FromBase64String("XWtpeXD4XCnCqNoy");
-            var tagBytes = Convert.FromBase64String("NpW13DlIyb+6nB+GjQdLbw==");
-            var cipherBytes = Convert.FromBase64String(criptografado);
-            var plainBytes = new byte[cipherBytes.Length];
-
-            using var aes = new AesGcm(keyBytes, nativeTagSizeByte);
-
-            aes.Decrypt(nonceBytes, cipherBytes, tagBytes, plainBytes);
-
-            investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
-        }
+        //if (!builder.Environment.IsProduction())
+        investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
+        //else
+        //{
+        //    var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.WORKERSERVICE");
+        //
+        //    const int nativeTagSizeByte = 16;
+        //    var keyBytes = Convert.FromBase64String("UXGoyfisUfj+1C0k+iK+kgaDnNeB7kWoPmDm0pALKCs=");
+        //    var nonceBytes = Convert.FromBase64String("XWtpeXD4XCnCqNoy");
+        //    var tagBytes = Convert.FromBase64String("NpW13DlIyb+6nB+GjQdLbw==");
+        //    var cipherBytes = Convert.FromBase64String(criptografado);
+        //    var plainBytes = new byte[cipherBytes.Length];
+        //
+        //    using var aes = new AesGcm(keyBytes, nativeTagSizeByte);
+        //
+        //    aes.Decrypt(nonceBytes, cipherBytes, tagBytes, plainBytes);
+        //
+        //    investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
+        //}
 
         ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
 
@@ -61,10 +61,11 @@ public static class InjecaoDeDependencia
 
         // Quartz deve ser configurado após outros serviços 
         ConfiguraQuartzAdicionaRendimento(builder, investimentoRendaFixaWorkerService.CronJobAdicionaRendimento);
+        ConfiguraQuartzLiquidaPelaData(builder, investimentoRendaFixaWorkerService.CronJobLiquidaPelaData);
         ConfiguraQuartzResgataLiquidado(builder, investimentoRendaFixaWorkerService.CronJobResgataLiquidado);
 
         // Hosted Service deve ser configurado após o Quartz para geração de logs
-        ConfiguraHostedService(builder.Services);   
+        ConfiguraHostedService(builder.Services);
     }
 
     private static void ConfiguraBancoDeDados(IServiceCollection service)
@@ -118,7 +119,7 @@ public static class InjecaoDeDependencia
                     .StartNow()
                      //.WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
                      .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
-                
+
                 x.AddTrigger(x => x
                     .ForJob(rendimentoComErroJobKey)
                     .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
@@ -139,6 +140,43 @@ public static class InjecaoDeDependencia
                     .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
                     .StartNow()
                     .WithCronSchedule(cronJobAplicaRendimento.Erro));
+            }
+        });
+        builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
+    }
+
+    private static void ConfiguraQuartzLiquidaPelaData(IHostApplicationBuilder builder, CronJobLiquidaPelaData cronJobLiquidaPelaData)
+    {
+        builder.Services.Configure<QuartzOptions>(x =>
+        {
+            x.Scheduling.IgnoreDuplicates = true;
+            x.Scheduling.OverWriteExistingData = true;
+        });
+        builder.Services.AddQuartz(x =>
+        {
+            x.SchedulerId = "RendaFixaCronJobId";
+            x.SchedulerName = "RendaFixaCronJobName";
+
+            var investimentoLiquidadoPelaDataGroupJobKey = new JobKey("investimentoLiquidadoPelaDataJobKey", "investimentoLiquidadoPelaDataGroup");
+
+            x.AddJob<CronJobConsultaELiquidaInvestimentoPelaData>(x => x.WithIdentity(investimentoLiquidadoPelaDataGroupJobKey));
+
+            if (builder.Environment.IsDevelopment())
+            {
+                x.AddTrigger(x => x
+                    .ForJob(investimentoLiquidadoPelaDataGroupJobKey)
+                    .WithIdentity("investimentoLiquidadoPelaDataJobKey", "investimentoLiquidadoPelaDataGroup")
+                    .StartNow()
+                    //.WithCronSchedule(cronJobLiquidaPelaData.Diario));
+                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
+            }
+            else
+            {
+                x.AddTrigger(x => x
+                    .ForJob(investimentoLiquidadoPelaDataGroupJobKey)
+                    .WithIdentity("investimentoLiquidadoPelaDataJobKey", "investimentoLiquidadoPelaDataGroup")
+                    .StartNow()
+                    .WithCronSchedule(cronJobLiquidaPelaData.Diario));
             }
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
@@ -167,7 +205,7 @@ public static class InjecaoDeDependencia
                     .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
                     .StartNow()
                     //.WithCronSchedule(cronJobResgataLiquidado.Diario));
-                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(300).RepeatForever()));
+                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
             }
             else
             {
@@ -186,5 +224,6 @@ public static class InjecaoDeDependencia
         service.AddSingleton<AdicionaORendimentoNaPosicaoDeHoje>();
         service.AddSingleton<AdicionaOResgateNoInvestimentoLiquidado>();
         service.AddSingleton<AtualizaOAnoDaListaDeFeriadoNacional>();
+        service.AddSingleton<AtualizaOInvestimentoLiquidadoPelaData>();
     }
 }

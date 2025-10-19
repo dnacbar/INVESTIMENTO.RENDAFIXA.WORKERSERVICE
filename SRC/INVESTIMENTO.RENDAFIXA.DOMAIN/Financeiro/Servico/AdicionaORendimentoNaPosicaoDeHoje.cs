@@ -30,18 +30,16 @@ public class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerServ
             return;
         }
 
+        await ProcessaPosicaoInvestimentoAsync(token);
+    }
+
+    private async Task ProcessaPosicaoInvestimentoAsync(CancellationToken token)
+    {
         _logger.LogWarning("Iniciando aplicação de rendimento diário - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeConfiguracaoDoImposto = await _servicoQueListaConfiguracaoImposto.ListaConfiguracaoImpostoAsync(token);
         var listaDeInvestimento = await _servicoQueConsultaInvestimento.ListaInvestimentoParaCalculoDePosicaoAsync(token);
 
-        await ProcessaPosicaoInvestimentoAsync(listaDeInvestimento, listaDeConfiguracaoDoImposto, token);
-
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimento.Count, DateTimeOffset.Now.ToLocalTime()]);
-    }
-
-    private async Task ProcessaPosicaoInvestimentoAsync(List<Investimento> listaDeInvestimento, List<ConfiguracaoImposto> listaDeConfiguracaoImposto, CancellationToken token)
-    {
         var processados = 0;
         var falhas = 0;
 
@@ -49,7 +47,7 @@ public class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerServ
         {
             try
             {
-                await ProcessaInvestimentoIndividualAsync(investimento, listaDeConfiguracaoImposto, token);
+                await ProcessaInvestimentoIndividualAsync(investimento, listaDeConfiguracaoDoImposto, token);
                 processados++;
             }
             catch (Exception ex)
@@ -63,6 +61,8 @@ public class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerServ
 
         if (falhas > decimal.Zero)
             _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos.", [falhas, listaDeInvestimento.Count]);
+
+        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimento.Count, DateTimeOffset.Now.ToLocalTime()]);
     }
 
     private async Task ProcessaInvestimentoIndividualAsync(Investimento investimento, List<ConfiguracaoImposto> configuracaoImpostos, CancellationToken token)

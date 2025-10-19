@@ -61,6 +61,13 @@ public class Investimento
         NmValorImposto = nmValorImposto;
     }
 
+    public Investimento(Guid idInvestimento, byte cdInvestimento, DateTime dtFinal)
+    {
+        IdInvestimento = idInvestimento;
+        CdInvestimento = cdInvestimento;
+        DtFinal = dtFinal;
+    }
+
     /// <summary>
     /// Indexador associado ao investimento.
     /// </summary>

@@ -4,4 +4,5 @@ public interface IServicoQueConsultaInvestimento
 {
     Task<List<Investimento>> ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(CancellationToken token);
     Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token);
+    Task<List<Investimento>> ListaInvestimentoQueDeveSerLiquidadoPelaDataAsync(CancellationToken token);
 }
