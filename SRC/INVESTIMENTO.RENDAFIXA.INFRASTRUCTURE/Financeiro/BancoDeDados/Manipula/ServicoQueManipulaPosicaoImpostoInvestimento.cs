@@ -6,7 +6,7 @@ using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public class ServicoQueManipulaPosicaoImpostoInvestimento(IDbConnection _dbConnection) : IServicoQueManipulaPosicaoImpostoInvestimento
+public sealed class ServicoQueManipulaPosicaoImpostoInvestimento(IDbConnection _dbConnection) : IServicoQueManipulaPosicaoImpostoInvestimento
 {
     public async Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
     {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
-public class AtualizaOInvestimentoLiquidadoPelaData(ILogger<AtualizaOInvestimentoLiquidadoPelaData> _logger,
+public sealed class AtualizaOInvestimentoLiquidadoPelaData(ILogger<AtualizaOInvestimentoLiquidadoPelaData> _logger,
     IServicoQueConsultaInvestimento _servicoQueConsultaInvestimento,
     IServicoQueManipulaInvestimento _servicoQueManipulaInvestimento)
 {

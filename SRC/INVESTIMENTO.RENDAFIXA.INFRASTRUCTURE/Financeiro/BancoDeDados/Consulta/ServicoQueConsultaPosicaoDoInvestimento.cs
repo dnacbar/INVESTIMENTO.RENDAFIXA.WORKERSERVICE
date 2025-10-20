@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
-public class ServicoQueConsultaPosicaoDoInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaPosicaoDoInvestimento
+public sealed class ServicoQueConsultaPosicaoDoInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaPosicaoDoInvestimento
 {
     public async Task<Posicao> ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(Investimento investimento, CancellationToken token)
     {

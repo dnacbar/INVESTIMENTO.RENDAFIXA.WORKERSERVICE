@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.Servico;
 
-public class AtualizaOAnoDaListaDeFeriadoNacional(ILogger<AtualizaOAnoDaListaDeFeriadoNacional> _logger,
+public sealed class AtualizaOAnoDaListaDeFeriadoNacional(ILogger<AtualizaOAnoDaListaDeFeriadoNacional> _logger,
     IServicoQueConsultaFeriadoNacional _servicoQueConsultaFeriadoNacional,
     IServicoQueManipulaFeriadoNacional _servicoQueManipulaFeriadoNacional)
 {

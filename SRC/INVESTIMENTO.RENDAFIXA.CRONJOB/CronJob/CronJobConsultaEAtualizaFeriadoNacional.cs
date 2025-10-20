@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
-public class CronJobConsultaEAtualizaFeriadoNacional(ILogger<CronJobConsultaEAtualizaFeriadoNacional> _logger,
+public sealed class CronJobConsultaEAtualizaFeriadoNacional(ILogger<CronJobConsultaEAtualizaFeriadoNacional> _logger,
     AtualizaOAnoDaListaDeFeriadoNacional _atualizaOAnoDaListaDeFeriadoNacional) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

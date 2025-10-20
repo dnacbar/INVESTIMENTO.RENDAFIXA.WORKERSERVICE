@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
-public class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimentoNaPosicaoDeHoje> _logger,
+public sealed class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORendimentoNaPosicaoDeHoje> _logger,
     IServicoQueConsultaBloqueioInvestimento _servicoQueConsultaBloqueioInvestimento,
     IServicoQueConsultaFeriadoNacional _servicoQueConsultaFeriadoNacional,
     IServicoQueConsultaInvestimento _servicoQueConsultaInvestimento,

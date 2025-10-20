@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 
-public class CronJobConsultaEResgataInvestimentoLiquidado(ILogger<CronJobConsultaEResgataInvestimentoLiquidado> _logger,
+public sealed class CronJobConsultaEResgataInvestimentoLiquidado(ILogger<CronJobConsultaEResgataInvestimentoLiquidado> _logger,
     AdicionaOResgateNoInvestimentoLiquidado _adicionaOResgateNoInvestimentoLiquidado) : IJob
 {
     public async Task Execute(IJobExecutionContext context)

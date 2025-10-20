@@ -17,8 +17,8 @@ using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 using Quartz;
 using System.Data;
 using System.Data.SqlClient;
-using System.Security.Cryptography;
-using System.Text;
+//using System.Security.Cryptography;
+//using System.Text;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
 
@@ -54,7 +54,6 @@ public static class InjecaoDeDependencia
         {
             return investimentoRendaFixaWorkerService;
         });
-        builder.Services.AddLogging(b => b.AddConsole());
 
         ConfiguraBancoDeDados(builder.Services);
         ConfiguraServicoCronJob(builder.Services);

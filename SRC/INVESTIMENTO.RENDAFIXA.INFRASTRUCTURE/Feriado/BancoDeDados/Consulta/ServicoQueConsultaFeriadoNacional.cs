@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Consulta;
 
-public class ServicoQueConsultaFeriadoNacional(IDbConnection _dbConnection) : IServicoQueConsultaFeriadoNacional
+public sealed class ServicoQueConsultaFeriadoNacional(IDbConnection _dbConnection) : IServicoQueConsultaFeriadoNacional
 {
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
     public async Task<List<FeriadoNacional>> ListaAsync(CancellationToken cancellationToken)

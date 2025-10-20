@@ -2,7 +2,7 @@
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
 
-internal class InvestimentoRendaFixaWorkerService(ConnectionString connectionString, 
+internal sealed class InvestimentoRendaFixaWorkerService(ConnectionString connectionString, 
     CronJobAdicionaRendimento cronJobAdicionaRendimento, 
     CronJobLiquidaPelaData cronJobLiquidaPelaData,
     CronJobResgataLiquidado cronJobResgataLiquidado,

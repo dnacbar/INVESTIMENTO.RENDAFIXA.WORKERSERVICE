@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 
-public class ServicoQueConsultaConfiguracaoImposto(IDbConnection _dbConnection) : IServicoQueConsultaConfiguracaoImposto
+public sealed class ServicoQueConsultaConfiguracaoImposto(IDbConnection _dbConnection) : IServicoQueConsultaConfiguracaoImposto
 {
     public async Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {

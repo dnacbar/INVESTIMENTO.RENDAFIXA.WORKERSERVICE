@@ -7,7 +7,7 @@ using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public class ServicoQueManipulaResgate(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService) : IServicoQueManipulaResgate
+public sealed class ServicoQueManipulaResgate(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService) : IServicoQueManipulaResgate
 {
     public Task AdicionaAsync(Resgate resgate, CancellationToken cancellationToken)
     {

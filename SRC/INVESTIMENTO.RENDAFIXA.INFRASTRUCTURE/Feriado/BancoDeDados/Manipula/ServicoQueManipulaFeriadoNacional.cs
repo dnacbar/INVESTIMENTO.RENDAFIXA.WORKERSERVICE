@@ -7,7 +7,7 @@ using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Manipula;
 
-public class ServicoQueManipulaFeriadoNacional(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService) : IServicoQueManipulaFeriadoNacional
+public sealed class ServicoQueManipulaFeriadoNacional(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService) : IServicoQueManipulaFeriadoNacional
 {
     public Task AtualizaAsync(FeriadoNacional feriadoNacional, CancellationToken cancellationToken)
     {

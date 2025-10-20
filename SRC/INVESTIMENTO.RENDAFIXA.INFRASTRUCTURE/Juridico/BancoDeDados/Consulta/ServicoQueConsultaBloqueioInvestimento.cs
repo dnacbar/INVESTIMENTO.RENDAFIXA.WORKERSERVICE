@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 
-public class ServicoQueConsultaBloqueioInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaBloqueioInvestimento
+public sealed class ServicoQueConsultaBloqueioInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaBloqueioInvestimento
 {
     public async Task<decimal> ObtemValorBloqueadoTotalAsync(BloqueioInvestimento bloqueioInvestimento, CancellationToken cancellationToken)
     {
