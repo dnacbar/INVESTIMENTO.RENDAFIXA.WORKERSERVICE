@@ -1,6 +1,5 @@
 ﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico;
 using Microsoft.Extensions.Logging;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;

@@ -221,7 +221,7 @@ public class Posicao
     /// Verifica se o valor bruto é maior que o valor líquido.
     /// </summary>
     /// <returns>True se o valor bruto é maior que o valor líquido, False caso contrário</returns>
-    private bool VerificaSeValorBrutoEhMaiorQueOValorLiquido() => NmValorBruto > NmValorLiquido;
+    private bool VerificaSeValorBrutoEhMaiorQueOValorLiquido() => NmValorBruto >= NmValorLiquido;
 
     /// <summary>
     /// Verifica se o valor bruto total é maior que o valor bruto.
@@ -233,7 +233,7 @@ public class Posicao
     /// Verifica se o valor bruto total é maior que o valor líquido total.
     /// </summary>
     /// <returns>True se o valor bruto total é maior que o valor líquido total, False caso contrário</returns>
-    private bool VerificaSeValorBrutoTotalEhMaiorQueOValorLiquidoTotal() => NmValorBrutoTotal > NmValorLiquidoTotal;
+    private bool VerificaSeValorBrutoTotalEhMaiorQueOValorLiquidoTotal() => NmValorBrutoTotal >= NmValorLiquidoTotal;
 
     /// <summary>
     /// Verifica se a data final do investimento é maior ou igual à data da posição.
