@@ -3,5 +3,5 @@
 public interface IInvestimentoRendaFixaWorkerService
 {
     string Usuario { get; }
-    short TempoLimiteTransacion { get; }
+    short TempoLimiteTransaction { get; }
 }

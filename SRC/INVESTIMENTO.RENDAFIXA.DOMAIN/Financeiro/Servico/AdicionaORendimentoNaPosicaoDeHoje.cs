@@ -76,7 +76,7 @@ public sealed class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWor
 
     private async Task AtualizaInvestimentoEAdicionaPosicaoEImpostoAsync(Investimento investimento, Posicao posicao, CancellationToken token)
     {
-        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, _investimentoRendaFixaWorkerService.TempoLimiteTransacion), TransactionScopeAsyncFlowOption.Enabled);
+        using var scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 0, _investimentoRendaFixaWorkerService.TempoLimiteTransaction), TransactionScopeAsyncFlowOption.Enabled);
 
         await _servicoQueAtualizaInvestimento.AtualizaInvestimentoComRendimentoDaPosicaoAsync(investimento, token);
 

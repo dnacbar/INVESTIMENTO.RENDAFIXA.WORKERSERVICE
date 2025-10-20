@@ -144,7 +144,7 @@ public static class InjecaoDeDependencia
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
     }
 
-    private static void ConfiguraQuartzLiquidaPelaData(IHostApplicationBuilder builder, CronJobLiquidaPelaData cronJobLiquidaPelaData)
+    private static void ConfiguraQuartzLiquidaPelaData(IHostApplicationBuilder builder, string cronJobLiquidaPelaData)
     {
         builder.Services.Configure<QuartzOptions>(x =>
         {
@@ -166,7 +166,7 @@ public static class InjecaoDeDependencia
                     .ForJob(investimentoLiquidadoPelaDataGroupJobKey)
                     .WithIdentity("investimentoLiquidadoPelaDataJobKey", "investimentoLiquidadoPelaDataGroup")
                     .StartNow()
-                    //.WithCronSchedule(cronJobLiquidaPelaData.Diario));
+                    //.WithCronSchedule(cronJobLiquidaPelaData));
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
             }
             else
@@ -175,13 +175,13 @@ public static class InjecaoDeDependencia
                     .ForJob(investimentoLiquidadoPelaDataGroupJobKey)
                     .WithIdentity("investimentoLiquidadoPelaDataJobKey", "investimentoLiquidadoPelaDataGroup")
                     .StartNow()
-                    .WithCronSchedule(cronJobLiquidaPelaData.Diario));
+                    .WithCronSchedule(cronJobLiquidaPelaData));
             }
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
     }
 
-    private static void ConfiguraQuartzResgataLiquidado(IHostApplicationBuilder builder, CronJobResgataLiquidado cronJobResgataLiquidado)
+    private static void ConfiguraQuartzResgataLiquidado(IHostApplicationBuilder builder, string cronJobResgataLiquidado)
     {
         builder.Services.Configure<QuartzOptions>(x =>
         {
@@ -203,7 +203,7 @@ public static class InjecaoDeDependencia
                     .ForJob(resgateLiquidadoJobKey)
                     .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
                     .StartNow()
-                    //.WithCronSchedule(cronJobResgataLiquidado.Diario));
+                    //.WithCronSchedule(cronJobResgataLiquidado));
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
             }
             else
@@ -212,7 +212,7 @@ public static class InjecaoDeDependencia
                     .ForJob(resgateLiquidadoJobKey)
                     .WithIdentity("resgateLiquidadoJobKey", "resgataLiquidadoGroup")
                     .StartNow()
-                    .WithCronSchedule(cronJobResgataLiquidado.Diario));
+                    .WithCronSchedule(cronJobResgataLiquidado));
             }
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
