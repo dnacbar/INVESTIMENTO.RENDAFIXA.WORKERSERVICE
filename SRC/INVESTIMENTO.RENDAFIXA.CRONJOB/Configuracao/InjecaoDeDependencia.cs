@@ -105,10 +105,10 @@ public static class InjecaoDeDependencia
             x.SchedulerName = "RendaFixaCronJobName";
 
             var rendimentoDiarioJobKey = new JobKey("rendimentoDiarioJobKey", "aplicaRendimentoGroup");
-            var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
+            //var rendimentoComErroJobKey = new JobKey("rendimentoComErroJobKey", "aplicaRendimentoGroup");
 
             x.AddJob<CronJobConsultaEAdicionaRendimentoDiario>(x => x.WithIdentity(rendimentoDiarioJobKey));
-            x.AddJob<CronJobConsultaEAplicaRendimentoDiarioComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
+            //x.AddJob<CronJobConsultaEAplicaRendimentoDiarioComErro>(x => x.WithIdentity(rendimentoComErroJobKey));
 
             if (builder.Environment.IsDevelopment())
             {
@@ -119,12 +119,12 @@ public static class InjecaoDeDependencia
                      //.WithCronSchedule(configuraCronJobAplicaRendimento.Diario));
                      .WithSimpleSchedule(x => x.WithIntervalInSeconds(200).RepeatForever()));
 
-                x.AddTrigger(x => x
-                    .ForJob(rendimentoComErroJobKey)
-                    .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
-                    .StartNow()
-                    //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
-                    .WithSimpleSchedule(x => x.WithIntervalInSeconds(400).RepeatForever()));
+                //x.AddTrigger(x => x
+                //    .ForJob(rendimentoComErroJobKey)
+                //    .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
+                //    .StartNow()
+                //    //.WithCronSchedule(configuraCronJobAplicaRendimento.Erro));
+                //    .WithSimpleSchedule(x => x.WithIntervalInSeconds(400).RepeatForever()));
             }
             else
             {
@@ -134,11 +134,11 @@ public static class InjecaoDeDependencia
                     .StartNow()
                     .WithCronSchedule(cronJobAplicaRendimento.Diario));
 
-                x.AddTrigger(x => x
-                    .ForJob(rendimentoComErroJobKey)
-                    .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
-                    .StartNow()
-                    .WithCronSchedule(cronJobAplicaRendimento.Erro));
+                //x.AddTrigger(x => x
+                //    .ForJob(rendimentoComErroJobKey)
+                //    .WithIdentity("rendimentoComErroJobKey", "aplicaRendimentoGroup")
+                //    .StartNow()
+                //    .WithCronSchedule(cronJobAplicaRendimento.Erro));
             }
         });
         builder.Services.AddQuartzHostedService(x => { x.WaitForJobsToComplete = true; });
