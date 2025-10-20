@@ -60,7 +60,7 @@ public sealed class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWor
         _logger.LogWarning("Processados {processados} de {total} investimentos.", [processados, listaDeInvestimento.Count]);
 
         if (falhas > decimal.Zero)
-            _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos.", [falhas, listaDeInvestimento.Count]);
+            _logger.LogError("Processamento concluído com {falhas} falhas de {total} investimentos.", [falhas, listaDeInvestimento.Count]);
 
         _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimento.Count, DateTimeOffset.Now.ToLocalTime()]);
     }

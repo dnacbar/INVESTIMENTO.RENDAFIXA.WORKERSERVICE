@@ -53,7 +53,7 @@ public sealed class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORen
         _logger.LogWarning("Processados {processados} de {total} investimentos liquidados.", [processados, listaDeInvestimentoLiquidado.Count]);
 
         if (falhas > decimal.Zero)
-            _logger.LogWarning("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimentoLiquidado.Count]);
+            _logger.LogError("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimentoLiquidado.Count]);
 
         _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos liquidados - {horario}.", [listaDeInvestimentoLiquidado.Count, DateTimeOffset.Now.ToLocalTime()]);
     }
