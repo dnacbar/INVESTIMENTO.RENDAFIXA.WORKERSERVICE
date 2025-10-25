@@ -3,13 +3,13 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Manipula;
-using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaFeriadoNacional(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService) : IServicoQueManipulaFeriadoNacional
+public sealed class ServicoQueManipulaFeriadoNacional(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
+    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaFeriadoNacional
 {
-    public Task AtualizaAsync(FeriadoNacional feriadoNacional, CancellationToken cancellationToken)
+    public async Task AtualizaAsync(FeriadoNacional feriadoNacional, CancellationToken cancellationToken)
     {
         const string sql = @"UPDATE [dbo].[FERIADONACIONAL]
                                 SET [DT_FERIADO] = @DtFeriado
@@ -26,7 +26,10 @@ public sealed class ServicoQueManipulaFeriadoNacional(IDbConnection _dbConnectio
 
         try
         {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: cancellationToken));
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(cancellationToken);
+
+            await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: cancellationToken));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -2,7 +2,7 @@
 
 public interface IServicoQueConsultaInvestimento
 {
-    Task<List<Investimento>> ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(CancellationToken token);
-    Task<List<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token);
-    Task<List<Investimento>> ListaInvestimentoQueDeveSerLiquidadoPelaDataAsync(CancellationToken token);
+    Task<IEnumerable<Investimento>> ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(CancellationToken token);
+    Task<IEnumerable<Investimento>> ListaInvestimentoParaCalculoDePosicaoAsync(CancellationToken token);
+    Task<IEnumerable<Investimento>> ListaInvestimentoQueDeveSerLiquidadoPelaDataAsync(CancellationToken token);
 }

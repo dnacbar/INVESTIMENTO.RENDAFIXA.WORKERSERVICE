@@ -20,7 +20,7 @@ public sealed class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORen
 
         if (listaDeFeriadoNacional.VerificaSeDataAtualEstaNaListaDeFeriadoNacional())
         {
-            _logger.LogWarning("Hoje é feriado nacional. Não será aplicado resgate de investimento liquidado - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
+            _logger.LogInformation("Hoje é feriado nacional. Não será aplicado resgate de investimento liquidado - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
             return;
         }
 
@@ -50,12 +50,12 @@ public sealed class AdicionaOResgateNoInvestimentoLiquidado(ILogger<AdicionaORen
             }
         }
 
-        _logger.LogWarning("Processados {processados} de {total} investimentos liquidados.", [processados, listaDeInvestimentoLiquidado.Count]);
+        _logger.LogInformation("Processados {processados} de {total} investimentos liquidados.", [processados, listaDeInvestimentoLiquidado.Count()]);
 
         if (falhas > decimal.Zero)
-            _logger.LogError("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimentoLiquidado.Count]);
+            _logger.LogError("Processamento concluído com {falhas} falhas de {total} investimentos liquidados.", [falhas, listaDeInvestimentoLiquidado.Count()]);
 
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos liquidados - {horario}.", [listaDeInvestimentoLiquidado.Count, DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogInformation("Finalizado processamento de {qtdeInvestimento} investimentos liquidados - {horario}.", [listaDeInvestimentoLiquidado.Count(), DateTimeOffset.Now.ToLocalTime()]);
     }
 
     private async Task ProcessaOResgateDoInvestimentoLiquidadoIndividualAsync(Investimento investimento, CancellationToken token)

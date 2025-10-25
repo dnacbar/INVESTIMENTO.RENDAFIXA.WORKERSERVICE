@@ -8,6 +8,7 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
@@ -15,8 +16,6 @@ using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 using Quartz;
-using System.Data;
-using System.Data.SqlClient;
 //using System.Security.Cryptography;
 //using System.Text;
 
@@ -48,11 +47,14 @@ public static class InjecaoDeDependencia
         //    investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         //}
 
-        ConfiguraDbConnection(builder.Services, investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
-
         builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
         {
             return investimentoRendaFixaWorkerService;
+        });
+
+        builder.Services.AddSingleton<ISqlConnectionFactory>(x =>
+        {
+            return new SqlConnectionFactory(investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
         });
 
         ConfiguraBancoDeDados(builder.Services);
@@ -80,11 +82,6 @@ public static class InjecaoDeDependencia
         service.AddSingleton<IServicoQueManipulaPosicaoInvestimento, ServicoQueManipulaPosicaoInvestimento>();
         service.AddSingleton<IServicoQueManipulaPosicaoImpostoInvestimento, ServicoQueManipulaPosicaoImpostoInvestimento>();
         service.AddSingleton<IServicoQueManipulaResgate, ServicoQueManipulaResgate>();
-    }
-
-    private static void ConfiguraDbConnection(IServiceCollection services, string connectionString)
-    {
-        services.AddTransient<IDbConnection>(x => new SqlConnection(connectionString));
     }
 
     private static void ConfiguraHostedService(IServiceCollection service)

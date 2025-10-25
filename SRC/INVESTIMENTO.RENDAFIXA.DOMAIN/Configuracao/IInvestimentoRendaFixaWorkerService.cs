@@ -2,6 +2,13 @@
 
 public interface IInvestimentoRendaFixaWorkerService
 {
+    ConnectionString ConnectionString { get; }
     string Usuario { get; }
     short TempoLimiteTransaction { get; }
+}
+
+
+public class ConnectionString(string dbRendaFixa)
+{
+    public string DBRENDAFIXA { get; } = dbRendaFixa;
 }

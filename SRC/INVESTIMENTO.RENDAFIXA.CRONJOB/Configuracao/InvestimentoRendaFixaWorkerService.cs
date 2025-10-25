@@ -17,11 +17,6 @@ internal sealed class InvestimentoRendaFixaWorkerService(ConnectionString connec
     public short TempoLimiteTransaction { get; } = tempoLimiteTransaction;
 }
 
-internal class ConnectionString(string dbRendaFixa)
-{
-    public string DBRENDAFIXA { get; } = dbRendaFixa;
-}
-
 internal class CronJobAdicionaRendimento(string diario, string erro)
 {
     public string Diario { get; } = diario;

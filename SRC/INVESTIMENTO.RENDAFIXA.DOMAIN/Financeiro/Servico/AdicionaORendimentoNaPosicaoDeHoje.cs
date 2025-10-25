@@ -1,12 +1,13 @@
-﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
+﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using System.Transactions;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
@@ -26,7 +27,7 @@ public sealed class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWor
 
         if (listaDeFeriadoNacional.VerificaSeDataAtualEstaNaListaDeFeriadoNacional())
         {
-            _logger.LogWarning("Hoje é feriado nacional. Não será aplicado rendimento diário na posição de hoje - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
+            _logger.LogInformation("Hoje é feriado nacional. Não será aplicado rendimento diário na posição de hoje - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
             return;
         }
 
@@ -35,7 +36,7 @@ public sealed class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWor
 
     private async Task ProcessaPosicaoInvestimentoAsync(CancellationToken token)
     {
-        _logger.LogWarning("Iniciando aplicação de rendimento diário - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogInformation("Iniciando aplicação de rendimento diário - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeConfiguracaoDoImposto = await _servicoQueListaConfiguracaoImposto.ListaConfiguracaoImpostoAsync(token);
         var listaDeInvestimento = await _servicoQueConsultaInvestimento.ListaInvestimentoParaCalculoDePosicaoAsync(token);
@@ -57,15 +58,15 @@ public sealed class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWor
             }
         }
 
-        _logger.LogWarning("Processados {processados} de {total} investimentos.", [processados, listaDeInvestimento.Count]);
+        _logger.LogInformation("Processados {processados} de {total} investimentos.", [processados, listaDeInvestimento.Count()]);
 
         if (falhas > decimal.Zero)
-            _logger.LogError("Processamento concluído com {falhas} falhas de {total} investimentos.", [falhas, listaDeInvestimento.Count]);
+            _logger.LogError("Processamento concluído com {falhas} falhas de {total} investimentos.", [falhas, listaDeInvestimento.Count()]);
 
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimento.Count, DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogInformation("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimento.Count(), DateTimeOffset.Now.ToLocalTime()]);
     }
 
-    private async Task ProcessaInvestimentoIndividualAsync(Investimento investimento, List<ConfiguracaoImposto> configuracaoImpostos, CancellationToken token)
+    private async Task ProcessaInvestimentoIndividualAsync(Investimento investimento, IEnumerable<ConfiguracaoImposto> configuracaoImpostos, CancellationToken token)
     {
         var posicao = await _servicoQueConsultaPosicaoDoInvestimento.ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(investimento, token);
 

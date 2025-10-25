@@ -3,13 +3,13 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
-using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaPosicaoInvestimento(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob) : IServicoQueManipulaPosicaoInvestimento
+public sealed class ServicoQueManipulaPosicaoInvestimento(IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob,
+    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaPosicaoInvestimento
 {
-    public Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
+    public async Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {
         const string sql = @"INSERT INTO POSICAO 
                           ([ID_INVESTIMENTO]
@@ -46,7 +46,9 @@ public sealed class ServicoQueManipulaPosicaoInvestimento(IDbConnection _dbConne
 
         try
         {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(token);
+            await conn.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

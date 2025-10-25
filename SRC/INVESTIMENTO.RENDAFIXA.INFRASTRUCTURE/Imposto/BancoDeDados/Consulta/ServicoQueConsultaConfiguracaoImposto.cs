@@ -3,51 +3,42 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using System.Data;
-using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaConfiguracaoImposto(IDbConnection _dbConnection) : IServicoQueConsultaConfiguracaoImposto
+public sealed class ServicoQueConsultaConfiguracaoImposto(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueConsultaConfiguracaoImposto
 {
-    public async Task<List<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
+    public async Task<IEnumerable<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {
         const string sql = @"SELECT I.[ID_IMPOSTO]
-	                      ,[ID_CONFIGURACAOIMPOSTO]
-	                      ,[NM_RENDIMENTO]
-	                      ,[NM_DIASUTEIS]
-	                  FROM [IMPOSTO] I
-	                 INNER JOIN [CONFIGURACAOIMPOSTO] CI
-	                    ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
+                                   ,[ID_CONFIGURACAOIMPOSTO]
+                                   ,[NM_RENDIMENTO]
+                                   ,[NM_DIASUTEIS]
+                               FROM [IMPOSTO] I
+                              INNER JOIN [CONFIGURACAOIMPOSTO] CI
+                                 ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
 
         try
         {
-            if (_dbConnection.State != ConnectionState.Open)
-                _dbConnection.Open();
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(token);
 
-            using var dReader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, cancellationToken: token));
+            var listaDynamicConfiguracaoImposto = await conn.QueryAsync(new CommandDefinition(sql, cancellationToken: token));
 
-            var retorno = new List<ConfiguracaoImposto>();
-
-            while (await dReader.ReadAsync(token))
+            return listaDynamicConfiguracaoImposto.Select(r =>
             {
-                retorno.Add(new ConfiguracaoImposto(
-                    Convert.ToByte(dReader["ID_IMPOSTO"]),
-                    Convert.ToByte(dReader["ID_CONFIGURACAOIMPOSTO"]),
-                    Convert.ToDecimal(dReader["NM_RENDIMENTO"]),
-                    Convert.ToInt16(dReader["NM_DIASUTEIS"])
-                ));
-            }
-
-            return retorno;
+                var row = (IDictionary<string, object>)r;
+                return new ConfiguracaoImposto(
+                    Convert.ToByte(row["ID_IMPOSTO"]),
+                    Convert.ToByte(row["ID_CONFIGURACAOIMPOSTO"]),
+                    Convert.ToDecimal(row["NM_RENDIMENTO"]),
+                    Convert.ToInt16(row["NM_DIASUTEIS"])
+                );
+            });
         }
         catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
         {
             throw new DataBaseException("Erro ao consultar configuração de impostos para aplicar rendimento diário.", ex);
-        }
-        finally
-        {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
         }
     }
 }

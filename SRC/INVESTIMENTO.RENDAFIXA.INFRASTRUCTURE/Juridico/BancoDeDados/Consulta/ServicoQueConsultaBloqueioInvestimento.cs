@@ -2,12 +2,10 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
-using System.Data;
-using System.Data.Common;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaBloqueioInvestimento(IDbConnection _dbConnection) : IServicoQueConsultaBloqueioInvestimento
+public sealed class ServicoQueConsultaBloqueioInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueConsultaBloqueioInvestimento
 {
     public async Task<decimal> ObtemValorBloqueadoTotalAsync(BloqueioInvestimento bloqueioInvestimento, CancellationToken cancellationToken)
     {
@@ -20,24 +18,16 @@ public sealed class ServicoQueConsultaBloqueioInvestimento(IDbConnection _dbConn
 
         try
         {
-            if (_dbConnection.State != ConnectionState.Open)
-                _dbConnection.Open();
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(cancellationToken);
 
-            using var reader = (DbDataReader)await _dbConnection.ExecuteReaderAsync(new CommandDefinition(sql, parameters: new { bloqueioInvestimento.IdInvestimento }, cancellationToken: cancellationToken));
-
-            if (await reader.ReadAsync(cancellationToken))
-                return Convert.ToDecimal(reader["NM_VALORBLOQUEADO"]);
-
-            throw new NotFoundException($"Nenhum valor bloqueado total foi encontrado para os parâmetros informados: [{bloqueioInvestimento.IdInvestimento}]");
+            var dynamicBloqueadoTotal = await conn.QuerySingleOrDefaultAsync(new CommandDefinition(sql, parameters: new { bloqueioInvestimento.IdInvestimento }, cancellationToken: cancellationToken)) ?? throw new NotFoundException($"Nenhum valor bloqueado total foi encontrado para os parâmetros informados: [{bloqueioInvestimento.IdInvestimento}]");
+            
+            return Convert.ToDecimal(((IDictionary<string, object>)dynamicBloqueadoTotal)["NM_VALORBLOQUEADO"]);
         }
         catch (Exception ex) when (ex is not NotFoundException && ex is not OperationCanceledException)
         {
             throw new DataBaseException($"Erro ao consultar valor bloqueado total de investimento! Investimento: [{bloqueioInvestimento.IdInvestimento}]", ex);
-        }
-        finally
-        {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
         }
     }
 }

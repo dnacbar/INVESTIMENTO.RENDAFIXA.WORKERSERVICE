@@ -3,13 +3,13 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
-using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob) : IServicoQueManipulaInvestimento
+public sealed class ServicoQueManipulaInvestimento(IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob,
+    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaInvestimento
 {
-    public Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
+    public async Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
     {
         const string sql = @"UPDATE [INVESTIMENTO]
                                 SET [NM_VALORFINAL] = @NmValorFinal
@@ -33,7 +33,9 @@ public sealed class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, 
 
         try
         {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(token);
+            await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -41,7 +43,7 @@ public sealed class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, 
         }
     }
 
-    public Task AtualizaInvestimentoLiquidadoPelaDataAsync(Investimento investimento, CancellationToken token)
+    public async Task AtualizaInvestimentoLiquidadoPelaDataAsync(Investimento investimento, CancellationToken token)
     {
         const string sql = @"UPDATE [INVESTIMENTO]
                                 SET [BO_LIQUIDADO] = @BoLiquidado
@@ -60,7 +62,9 @@ public sealed class ServicoQueManipulaInvestimento(IDbConnection _dbConnection, 
 
         try
         {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(token);
+            await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -10,17 +10,17 @@ public sealed class AtualizaOInvestimentoLiquidadoPelaData(ILogger<AtualizaOInve
 {
     public async Task ExecutaAsync(CancellationToken token)
     {
-        _logger.LogWarning("Iniciando liquidação de investimento pela data - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogInformation("Iniciando liquidação pela data - {horario}.", [DateTimeOffset.Now.ToLocalTime()]);
 
         var listaDeInvestimentoQueDeveSerLiquidadoPelaData = await _servicoQueConsultaInvestimento.ListaInvestimentoQueDeveSerLiquidadoPelaDataAsync(token);
 
         await ProcessaOInvestimentoQueDeveSerLiquidadoPelaDataAsync(listaDeInvestimentoQueDeveSerLiquidadoPelaData, token);
 
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} investimentos - {horario}.", [listaDeInvestimentoQueDeveSerLiquidadoPelaData.Count, DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogInformation("Finalizado processamento de {qtdeInvestimento} investimentos liquidados pela data - {horario}.", [listaDeInvestimentoQueDeveSerLiquidadoPelaData.Count(), DateTimeOffset.Now.ToLocalTime()]);
     }
 
-    private async Task ProcessaOInvestimentoQueDeveSerLiquidadoPelaDataAsync(List<Investimento> listaDeInvestimentoQueDeveSerLiquidadoPelaData, CancellationToken token)
-    {
+    private async Task ProcessaOInvestimentoQueDeveSerLiquidadoPelaDataAsync(IEnumerable<Investimento> listaDeInvestimentoQueDeveSerLiquidadoPelaData, CancellationToken token)
+    { 
         foreach (var investimento in listaDeInvestimentoQueDeveSerLiquidadoPelaData)
         {
             try
@@ -29,7 +29,7 @@ public sealed class AtualizaOInvestimentoLiquidadoPelaData(ILogger<AtualizaOInve
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao processar investimento liquidado {idInvestimento}.", investimento.IdInvestimento);
+                _logger.LogError(ex, "Erro ao processar investimento liquidado pela data {idInvestimento}.", investimento.IdInvestimento);
             }
         }
     }

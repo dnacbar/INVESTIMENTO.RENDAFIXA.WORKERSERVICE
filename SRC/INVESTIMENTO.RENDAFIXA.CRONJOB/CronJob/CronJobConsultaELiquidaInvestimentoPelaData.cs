@@ -18,7 +18,7 @@ public sealed class CronJobConsultaELiquidaInvestimentoPelaData(ILogger<CronJobC
         try
         {
             using var scope = _logger.BeginScope("Job {JobId}.", context.FireInstanceId);
-            _logger.LogWarning("Iniciando processamento do rendimento diário - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+            _logger.LogWarning("Iniciando processamento de liquidação pela data - {data}.", [DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
 
             await _atualizaOInvestimentoLiquidadoPelaData.ExecutaAsync(context.CancellationToken);
         }
@@ -43,7 +43,7 @@ public sealed class CronJobConsultaELiquidaInvestimentoPelaData(ILogger<CronJobC
         finally
         {
             stopwatch.Stop();
-            _logger.LogWarning("Processamento do rendimento diário concluído em {tempo} segundos - {data}.", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
+            _logger.LogWarning("Processamento da liquidação pela data concluído em {tempo} segundos - {data}.", [stopwatch.ElapsedMilliseconds / 1000, DateTimeOffset.Now.Date.ToLongDateString().ToUpperInvariant()]);
         }
     }
 }

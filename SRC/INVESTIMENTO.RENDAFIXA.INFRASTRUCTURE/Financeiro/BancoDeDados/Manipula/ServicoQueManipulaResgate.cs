@@ -3,13 +3,13 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
-using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaResgate(IDbConnection _dbConnection, IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService) : IServicoQueManipulaResgate
+public sealed class ServicoQueManipulaResgate(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
+    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaResgate
 {
-    public Task AdicionaAsync(Resgate resgate, CancellationToken cancellationToken)
+    public async Task AdicionaAsync(Resgate resgate, CancellationToken cancellationToken)
     {
         const string sql = @"INSERT INTO [dbo].[RESGATE]
                             ([ID_INVESTIMENTO]
@@ -29,7 +29,7 @@ public sealed class ServicoQueManipulaResgate(IDbConnection _dbConnection, IInve
                             ,0
                             ,@NmValorImposto
                             ,GETDATE()
-                            ,@TxUsuario)";
+                            ,@Usuario)";
 
         var listaDeParametro = new
         {
@@ -37,12 +37,14 @@ public sealed class ServicoQueManipulaResgate(IDbConnection _dbConnection, IInve
             resgate.IdResgate,
             resgate.NmValor,
             resgate.NmValorImposto,
-            TxUsuario = _investimentoRendaFixaWorkerService.Usuario
+            _investimentoRendaFixaWorkerService.Usuario
         };
 
         try
         {
-            return _dbConnection.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: cancellationToken));
+            using var conn = _sqlConnectionFactory.CreateConnection();
+            await conn.OpenAsync(cancellationToken);
+            await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: cancellationToken));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

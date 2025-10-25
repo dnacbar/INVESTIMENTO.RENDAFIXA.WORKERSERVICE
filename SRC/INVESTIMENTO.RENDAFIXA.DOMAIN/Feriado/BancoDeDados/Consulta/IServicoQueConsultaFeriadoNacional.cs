@@ -2,5 +2,5 @@
 
 public interface IServicoQueConsultaFeriadoNacional
 {
-    Task<List<FeriadoNacional>> ListaAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<FeriadoNacional>> ListaAsync(CancellationToken cancellationToken);
 }

@@ -20,6 +20,6 @@ public sealed class AtualizaOAnoDaListaDeFeriadoNacional(ILogger<AtualizaOAnoDaL
             await _servicoQueManipulaFeriadoNacional.AtualizaAsync(item, cancellationToken);
         }
 
-        _logger.LogWarning("Finalizado processamento de {qtdeInvestimento} feriados nacionais - {horario}.", [listaDeFeriadoNacional.Count, DateTimeOffset.Now.ToLocalTime()]);
+        _logger.LogInformation("Finalizado processamento de {qtdeInvestimento} feriados nacionais - {horario}.", [listaDeFeriadoNacional.Count(), DateTimeOffset.Now.ToLocalTime()]);
     }
 }

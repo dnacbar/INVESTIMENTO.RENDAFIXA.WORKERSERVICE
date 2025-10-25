@@ -58,8 +58,6 @@ public class Posicao
     public decimal NmValorLiquido { get; set; }
     public string TxUsuario { get; } = string.Empty;
     public DateTime DtCriacao { get; }
-    public string? TxUsuarioAtualizacao { get; }
-    public DateTime? DtAtualizacao { get; }
 
     /// <summary>
     /// Calcula a posição do investimento de forma assíncrona, atualizando os valores brutos e líquidos
@@ -71,11 +69,6 @@ public class Posicao
     /// <exception cref="OperationCanceledException">Lançada quando a operação é cancelada</exception>
     /// <exception cref="DomainException">Lançada quando a lista de impostos é nula ou quando as validações falham</exception>
     public Task CalculaPosicaoInvestimentoAsync(IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto, CancellationToken token) => Task.Run(() => { VerificaSeCalculaPosicaoInicialOuRecorrente(listaDeConfiguracaoImposto); }, token);
-    /// <summary>
-    /// Verifica se o valor líquido total da posição está zerado.
-    /// </summary>
-    /// <returns>True se o valor líquido total é zero, False caso contrário</returns>
-    public bool VerificaSeValorLiquidoTotalEstaZerado() => NmValorLiquidoTotal == decimal.Zero;
 
     /// <summary>
     /// Calcula a posição inicial do investimento, aplicando a taxa de rendimento e impostos quando aplicável.
