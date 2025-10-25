@@ -25,10 +25,8 @@ public static class InjecaoDeDependencia
 {
     public static void AdicionaInjecaoDeDependencia(IHostApplicationBuilder builder)
     {
-        InvestimentoRendaFixaWorkerService investimentoRendaFixaWorkerService;
-
         //if (!builder.Environment.IsProduction())
-        investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
+        InvestimentoRendaFixaWorkerService investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
         //else
         //{
         //    var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.WORKERSERVICE");
