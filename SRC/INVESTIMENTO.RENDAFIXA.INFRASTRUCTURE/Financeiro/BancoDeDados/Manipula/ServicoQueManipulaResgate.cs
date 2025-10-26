@@ -1,13 +1,11 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaResgate(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
-    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaResgate
+public sealed class ServicoQueManipulaResgate(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaResgate
 {
     public async Task AdicionaAsync(Resgate resgate, CancellationToken cancellationToken)
     {
@@ -29,7 +27,7 @@ public sealed class ServicoQueManipulaResgate(IInvestimentoRendaFixaWorkerServic
                             ,0
                             ,@NmValorImposto
                             ,GETDATE()
-                            ,@Usuario)";
+                            ,@TxUsuario)";
 
         var listaDeParametro = new
         {
@@ -37,7 +35,7 @@ public sealed class ServicoQueManipulaResgate(IInvestimentoRendaFixaWorkerServic
             resgate.IdResgate,
             resgate.NmValor,
             resgate.NmValorImposto,
-            _investimentoRendaFixaWorkerService.Usuario
+            resgate.TxUsuario
         };
 
         try

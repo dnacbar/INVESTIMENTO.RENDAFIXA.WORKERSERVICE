@@ -6,4 +6,5 @@ public class Resgate(Guid idInvestimento, byte idResgate, decimal nmValor, decim
     public byte IdResgate { get; } = idResgate;
     public decimal NmValor { get; private set; } = nmValor;
     public decimal NmValorImposto { get; private set; } = nmValorImposto;
+    public string TxUsuario { get; } = "WORKERSERVICE";
 }

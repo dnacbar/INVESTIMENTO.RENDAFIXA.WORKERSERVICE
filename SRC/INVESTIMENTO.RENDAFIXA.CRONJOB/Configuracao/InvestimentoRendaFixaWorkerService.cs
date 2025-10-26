@@ -6,14 +6,12 @@ internal sealed class InvestimentoRendaFixaWorkerService(ConnectionString connec
     CronJobAdicionaRendimento cronJobAdicionaRendimento, 
     string cronJobLiquidaPelaData,
     string cronJobResgataLiquidado,
-    string usuario, 
     short tempoLimiteTransaction) : IInvestimentoRendaFixaWorkerService
 {
     public ConnectionString ConnectionString { get; } = connectionString;
     public CronJobAdicionaRendimento CronJobAdicionaRendimento { get; } = cronJobAdicionaRendimento;
     public string CronJobLiquidaPelaData { get; } = cronJobLiquidaPelaData;
     public string CronJobResgataLiquidado { get; } = cronJobResgataLiquidado;
-    public string Usuario { get; } = usuario;
     public short TempoLimiteTransaction { get; } = tempoLimiteTransaction;
 }
 

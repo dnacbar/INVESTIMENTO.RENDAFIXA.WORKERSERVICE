@@ -1,13 +1,11 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaInvestimento(IInvestimentoRendaFixaWorkerService _usuarioInvestimentoRendaFixaCronJob,
-    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaInvestimento
+public sealed class ServicoQueManipulaInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaInvestimento
 {
     public async Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
     {
@@ -15,7 +13,7 @@ public sealed class ServicoQueManipulaInvestimento(IInvestimentoRendaFixaWorkerS
                                 SET [NM_VALORFINAL] = @NmValorFinal
                                    ,[NM_VALORIMPOSTO] = @NmValorImposto
                                    ,[BO_LIQUIDADO] = @BoLiquidado
-                                   ,[TX_USUARIOATUALIZACAO] = @Usuario
+                                   ,[TX_USUARIOATUALIZACAO] = @TxUsuario
                                    ,[DT_ATUALIZACAO] = GETDATE()
                               WHERE [ID_INVESTIMENTO] = @IdInvestimento
                                 AND [CD_INVESTIMENTO] = @CdInvestimento";
@@ -28,7 +26,7 @@ public sealed class ServicoQueManipulaInvestimento(IInvestimentoRendaFixaWorkerS
             investimento.NmValorFinal,
             investimento.NmValorImposto,
             investimento.BoLiquidado,
-            _usuarioInvestimentoRendaFixaCronJob.Usuario
+            investimento.TxUsuario,
         };
 
         try
@@ -47,7 +45,7 @@ public sealed class ServicoQueManipulaInvestimento(IInvestimentoRendaFixaWorkerS
     {
         const string sql = @"UPDATE [INVESTIMENTO]
                                 SET [BO_LIQUIDADO] = @BoLiquidado
-                                   ,[TX_USUARIOATUALIZACAO] = @Usuario
+                                   ,[TX_USUARIOATUALIZACAO] = @TxUsuario
                                    ,[DT_ATUALIZACAO] = GETDATE()
                               WHERE [ID_INVESTIMENTO] = @IdInvestimento
                                 AND [CD_INVESTIMENTO] = @CdInvestimento";
@@ -57,7 +55,7 @@ public sealed class ServicoQueManipulaInvestimento(IInvestimentoRendaFixaWorkerS
             investimento.IdInvestimento,
             investimento.CdInvestimento,
             investimento.BoLiquidado,
-            _usuarioInvestimentoRendaFixaCronJob.Usuario
+            investimento.TxUsuario
         };
 
         try

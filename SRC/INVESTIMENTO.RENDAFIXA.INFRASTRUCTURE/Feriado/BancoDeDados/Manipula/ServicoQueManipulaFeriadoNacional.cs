@@ -1,13 +1,11 @@
 ﻿using Dapper;
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Manipula;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaFeriadoNacional(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
-    ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaFeriadoNacional
+public sealed class ServicoQueManipulaFeriadoNacional(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaFeriadoNacional
 {
     public async Task AtualizaAsync(FeriadoNacional feriadoNacional, CancellationToken cancellationToken)
     {
@@ -21,7 +19,7 @@ public sealed class ServicoQueManipulaFeriadoNacional(IInvestimentoRendaFixaWork
         {
             feriadoNacional.IdFeriado,
             feriadoNacional.DtFeriado,
-            TxUsuario = _investimentoRendaFixaWorkerService.Usuario
+            feriadoNacional.TxUsuario
         };
 
         try

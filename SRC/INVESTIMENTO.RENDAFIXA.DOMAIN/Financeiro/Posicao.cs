@@ -56,7 +56,7 @@ public class Posicao
     public decimal NmValorLiquidoTotal { get; set; }
     public decimal NmValorBruto { get; set; }
     public decimal NmValorLiquido { get; set; }
-    public string TxUsuario { get; } = string.Empty;
+    public string TxUsuario { get; } = "WORKERSERVICE";
     public DateTime DtCriacao { get; }
 
     /// <summary>

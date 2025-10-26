@@ -117,14 +117,13 @@ public class Investimento
     public string TxUsuario
     {
         get { return _txUsuario; }
-        private set { _txUsuario = string.IsNullOrEmpty(value) ? "DN" : value; }
+        private set { _txUsuario = string.IsNullOrEmpty(value) ? "WORKERSERVICE" : value; }
     }
     public DateTime DtCriacao { get; }
 
     private DateTime _dtFinal;
     private EnumIndexador _idIndexador;
     private string _txUsuario = string.Empty;
-
 
     /// <summary>
     /// Adiciona os resultados do cálculo de posição ao investimento.
@@ -134,6 +133,11 @@ public class Investimento
     {
         NmValorFinal = posicao.NmValorLiquidoTotal;
         NmValorImposto = posicao.ImpostoPosicao.NmValorImpostoSomado;
+    }
+
+    public void AtualizaUsuarioAtualizacao()
+    {
+        TxUsuario += ".RESGATE";
     }
 
     /// <summary>

@@ -3,7 +3,6 @@
 public interface IInvestimentoRendaFixaWorkerService
 {
     ConnectionString ConnectionString { get; }
-    string Usuario { get; }
     short TempoLimiteTransaction { get; }
 }
 
