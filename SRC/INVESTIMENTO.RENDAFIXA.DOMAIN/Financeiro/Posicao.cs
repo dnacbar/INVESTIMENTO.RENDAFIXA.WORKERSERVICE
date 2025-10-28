@@ -28,8 +28,6 @@ public class Posicao
         NmValorLiquidoTotal = nmValorLiquidoTotal;
         NmValorBruto = nmValorBruto;
         NmValorLiquido = nmValorLiquido;
-        TxUsuario = investimento.TxUsuario;
-        DtCriacao = investimento.DtCriacao;
 
         Investimento = investimento;
 
@@ -56,8 +54,6 @@ public class Posicao
     public decimal NmValorLiquidoTotal { get; set; }
     public decimal NmValorBruto { get; set; }
     public decimal NmValorLiquido { get; set; }
-    public string TxUsuario { get; } = "WORKERSERVICE";
-    public DateTime DtCriacao { get; }
 
     /// <summary>
     /// Calcula a posição do investimento de forma assíncrona, atualizando os valores brutos e líquidos

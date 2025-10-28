@@ -2,22 +2,26 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaFeriadoNacional(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueConsultaFeriadoNacional
+public sealed class ServicoQueConsultaFeriadoNacional(IConfiguracaoInfraWorkerService _sqlConnectionFactory) : IServicoQueConsultaFeriadoNacional
 {
     private static readonly SemaphoreSlim _semaphore = new(1);
     
     public async Task<IEnumerable<FeriadoNacional>> ListaAsync(CancellationToken cancellationToken)
     {
-        const string sql = @"SELECT [ID_FERIADO], [DT_FERIADO], [TX_NOME] FROM [dbo].[FERIADONACIONAL] WITH (NOLOCK)";
+        const string sql = @"SELECT [ID_FERIADO] 
+                                   ,[DT_FERIADO] 
+                                   ,[TX_NOME] 
+                               FROM [dbo].[FERIADONACIONAL] WITH (NOLOCK)";
 
         await _semaphore.WaitAsync(cancellationToken);
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(cancellationToken);
 
             var listaDynamicFeriadoNacional = await conn.QueryAsync(new CommandDefinition(sql, cancellationToken: cancellationToken));

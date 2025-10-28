@@ -8,7 +8,7 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
-using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Feriado.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
@@ -26,7 +26,7 @@ public static class InjecaoDeDependencia
     public static void AdicionaInjecaoDeDependencia(IHostApplicationBuilder builder)
     {
         //if (!builder.Environment.IsProduction())
-        InvestimentoRendaFixaWorkerService investimentoRendaFixaWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<InvestimentoRendaFixaWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
+        ConfiguracaoWorkerService configuracaoWorkerService = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<ConfiguracaoWorkerService>() ?? throw new InvalidCastException("ERRO AO CONVERTER OS PARÂMETROS INICIAIS DA APLICAÇÃO!");
         //else
         //{
         //    var criptografado = builder.Configuration.GetSection("INVESTIMENTO.RENDAFIXA.WORKERSERVICE").Get<string>() ?? throw new InvalidOperationException("INVESTIMENTO.RENDAFIXA.WORKERSERVICE");
@@ -45,23 +45,16 @@ public static class InjecaoDeDependencia
         //    investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         //}
 
-        builder.Services.AddSingleton<IInvestimentoRendaFixaWorkerService>(x =>
-        {
-            return investimentoRendaFixaWorkerService;
-        });
-
-        builder.Services.AddSingleton<ISqlConnectionFactory>(x =>
-        {
-            return new SqlConnectionFactory(investimentoRendaFixaWorkerService.ConnectionString.DBRENDAFIXA);
-        });
+        builder.Services.AddSingleton<IConfiguracaoDomainWorkerService>(x => { return configuracaoWorkerService; });
+        builder.Services.AddSingleton<IConfiguracaoInfraWorkerService>(x => { return configuracaoWorkerService; });
 
         ConfiguraBancoDeDados(builder.Services);
         ConfiguraServicoCronJob(builder.Services);
 
         // Quartz deve ser configurado após outros serviços 
-        ConfiguraQuartzAdicionaRendimento(builder, investimentoRendaFixaWorkerService.CronJobAdicionaRendimento);
-        ConfiguraQuartzLiquidaPelaData(builder, investimentoRendaFixaWorkerService.CronJobLiquidaPelaData);
-        ConfiguraQuartzResgataLiquidado(builder, investimentoRendaFixaWorkerService.CronJobResgataLiquidado);
+        ConfiguraQuartzAdicionaRendimento(builder, configuracaoWorkerService.CronJobAdicionaRendimento);
+        ConfiguraQuartzLiquidaPelaData(builder, configuracaoWorkerService.CronJobLiquidaPelaData);
+        ConfiguraQuartzResgataLiquidado(builder, configuracaoWorkerService.CronJobResgataLiquidado);
 
         // Hosted Service deve ser configurado após o Quartz para geração de logs
         ConfiguraHostedService(builder.Services);

@@ -114,11 +114,6 @@ public class Investimento
     }
     public bool BoLiquidado { get; private set; }
     public bool BoIsentoImposto { get; }
-    public string TxUsuario
-    {
-        get { return _txUsuario; }
-        private set { _txUsuario = string.IsNullOrEmpty(value) ? "WORKERSERVICE" : value; }
-    }
     public DateTime DtCriacao { get; }
 
     private DateTime _dtFinal;
@@ -133,11 +128,6 @@ public class Investimento
     {
         NmValorFinal = posicao.NmValorLiquidoTotal;
         NmValorImposto = posicao.ImpostoPosicao.NmValorImpostoSomado;
-    }
-
-    public void AtualizaUsuarioAtualizacao()
-    {
-        TxUsuario += ".RESGATE";
     }
 
     /// <summary>

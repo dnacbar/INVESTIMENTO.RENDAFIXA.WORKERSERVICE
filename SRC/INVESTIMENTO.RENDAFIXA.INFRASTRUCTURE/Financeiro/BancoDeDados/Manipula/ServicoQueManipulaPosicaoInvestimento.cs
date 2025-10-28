@@ -2,10 +2,11 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaPosicaoInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaPosicaoInvestimento
+public sealed class ServicoQueManipulaPosicaoInvestimento(IConfiguracaoInfraWorkerService _configuracaoInfraWorkerService) : IServicoQueManipulaPosicaoInvestimento
 {
     public async Task AdicionaPosicaoInvestimentoAsync(Posicao posicao, CancellationToken token)
     {
@@ -39,12 +40,12 @@ public sealed class ServicoQueManipulaPosicaoInvestimento(ISqlConnectionFactory 
             posicao.NmValorLiquidoTotal,
             posicao.NmValorBruto,
             posicao.NmValorLiquido,
-            posicao.TxUsuario
+            _configuracaoInfraWorkerService.TxUsuario
         };
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _configuracaoInfraWorkerService.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
             await conn.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: token));
         }

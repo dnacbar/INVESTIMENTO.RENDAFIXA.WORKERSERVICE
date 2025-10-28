@@ -2,10 +2,11 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaPosicaoImpostoInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaPosicaoImpostoInvestimento
+public sealed class ServicoQueManipulaPosicaoImpostoInvestimento(IConfiguracaoInfraWorkerService _configuracaoInfraWorkerService) : IServicoQueManipulaPosicaoImpostoInvestimento
 {
     public async Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
     {
@@ -23,7 +24,7 @@ public sealed class ServicoQueManipulaPosicaoImpostoInvestimento(ISqlConnectionF
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _configuracaoInfraWorkerService.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
 
             foreach (var item in posicaoImposto.ListaDeImpostoCalculadoPorTipo)

@@ -2,10 +2,11 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaPosicaoDoInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueConsultaPosicaoDoInvestimento
+public sealed class ServicoQueConsultaPosicaoDoInvestimento(IConfiguracaoInfraWorkerService _sqlConnectionFactory) : IServicoQueConsultaPosicaoDoInvestimento
 {
     public async Task<Posicao> ObtemPosicaoDoInvestimentoParaCalculoDePosicaoAsync(Investimento investimento, CancellationToken token)
     {
@@ -21,10 +22,10 @@ public sealed class ServicoQueConsultaPosicaoDoInvestimento(ISqlConnectionFactor
                               WHERE P.ID_INVESTIMENTO = @IdInvestimento
                                 AND P.CD_INVESTIMENTO = @CdInvestimento
                                 AND P.[DT_POSICAO] <= CAST(GETDATE() AS DATE)
-                                AND P.[ID_POSICAO] = (SELECT MAX([ID_POSICAO]) FROM [POSICAO] WHERE [ID_INVESTIMENTO] = @IdInvestimento AND [CD_INVESTIMENTO] = @CdInvestimento)";
+                                AND P.[ID_POSICAO] = (SELECT MAX([ID_POSICAO]) FROM [POSICAO] WITH (NOLOCK) WHERE [ID_INVESTIMENTO] = @IdInvestimento AND [CD_INVESTIMENTO] = @CdInvestimento)";
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
 
             var dynamicPosicao = await conn.QuerySingleOrDefaultAsync(new CommandDefinition(sql, new { investimento.IdInvestimento, investimento.CdInvestimento }, cancellationToken: token));

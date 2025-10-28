@@ -11,7 +11,7 @@ using System.Transactions;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.Servico;
 
-public sealed class AdicionaORendimentoNaPosicaoDeHoje(IInvestimentoRendaFixaWorkerService _investimentoRendaFixaWorkerService,
+public sealed class AdicionaORendimentoNaPosicaoDeHoje(IConfiguracaoDomainWorkerService _investimentoRendaFixaWorkerService,
     ILogger<AdicionaORendimentoNaPosicaoDeHoje> _logger,
     IServicoQueManipulaPosicaoImpostoInvestimento _servicoQueAdicionaOuAtualizaPosicaoImpostoInvestimento,
     IServicoQueManipulaPosicaoInvestimento _servicoQueAdicionaOuAtualizaPosicaoInvestimento,

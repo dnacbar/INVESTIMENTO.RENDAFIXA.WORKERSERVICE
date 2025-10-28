@@ -2,11 +2,12 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaConfiguracaoImposto(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueConsultaConfiguracaoImposto
+public sealed class ServicoQueConsultaConfiguracaoImposto(IConfiguracaoInfraWorkerService _sqlConnectionFactory) : IServicoQueConsultaConfiguracaoImposto
 {
     public async Task<IEnumerable<ConfiguracaoImposto>> ListaConfiguracaoImpostoAsync(CancellationToken token)
     {
@@ -14,13 +15,13 @@ public sealed class ServicoQueConsultaConfiguracaoImposto(ISqlConnectionFactory 
                                    ,[ID_CONFIGURACAOIMPOSTO]
                                    ,[NM_RENDIMENTO]
                                    ,[NM_DIASUTEIS]
-                               FROM [IMPOSTO] I
+                               FROM [IMPOSTO] I WITH (NOLOCK)
                               INNER JOIN [CONFIGURACAOIMPOSTO] CI
                                  ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
 
             var listaDynamicConfiguracaoImposto = await conn.QueryAsync(new CommandDefinition(sql, cancellationToken: token));

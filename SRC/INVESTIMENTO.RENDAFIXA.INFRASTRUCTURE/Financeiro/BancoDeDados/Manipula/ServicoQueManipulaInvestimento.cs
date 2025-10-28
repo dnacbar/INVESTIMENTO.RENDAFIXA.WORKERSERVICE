@@ -2,10 +2,11 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaInvestimento
+public sealed class ServicoQueManipulaInvestimento(IConfiguracaoInfraWorkerService _configuracaoInfraWorkerService) : IServicoQueManipulaInvestimento
 {
     public async Task AtualizaInvestimentoComRendimentoDaPosicaoAsync(Investimento investimento, CancellationToken token)
     {
@@ -26,12 +27,12 @@ public sealed class ServicoQueManipulaInvestimento(ISqlConnectionFactory _sqlCon
             investimento.NmValorFinal,
             investimento.NmValorImposto,
             investimento.BoLiquidado,
-            investimento.TxUsuario,
+            _configuracaoInfraWorkerService.TxUsuario,
         };
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _configuracaoInfraWorkerService.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
             await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
         }
@@ -55,12 +56,12 @@ public sealed class ServicoQueManipulaInvestimento(ISqlConnectionFactory _sqlCon
             investimento.IdInvestimento,
             investimento.CdInvestimento,
             investimento.BoLiquidado,
-            investimento.TxUsuario
+            _configuracaoInfraWorkerService.TxUsuario
         };
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _configuracaoInfraWorkerService.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
             await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: token));
         }

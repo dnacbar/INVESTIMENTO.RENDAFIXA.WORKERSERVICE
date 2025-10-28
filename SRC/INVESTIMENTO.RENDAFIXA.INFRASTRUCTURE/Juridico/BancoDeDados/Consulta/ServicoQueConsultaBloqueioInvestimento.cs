@@ -2,10 +2,11 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Juridico.BancoDeDados.Consulta;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaBloqueioInvestimento(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueConsultaBloqueioInvestimento
+public sealed class ServicoQueConsultaBloqueioInvestimento(IConfiguracaoInfraWorkerService _sqlConnectionFactory) : IServicoQueConsultaBloqueioInvestimento
 {
     public async Task<decimal> ObtemValorBloqueadoTotalAsync(BloqueioInvestimento bloqueioInvestimento, CancellationToken cancellationToken)
     {
@@ -18,7 +19,7 @@ public sealed class ServicoQueConsultaBloqueioInvestimento(ISqlConnectionFactory
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(cancellationToken);
 
             var dynamicBloqueadoTotal = await conn.QuerySingleOrDefaultAsync(new CommandDefinition(sql, parameters: new { bloqueioInvestimento.IdInvestimento }, cancellationToken: cancellationToken)) ?? throw new NotFoundException($"Nenhum valor bloqueado total foi encontrado para os parâmetros informados: [{bloqueioInvestimento.IdInvestimento}]");

@@ -2,10 +2,11 @@
 using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Manipula;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 
-public sealed class ServicoQueManipulaResgate(ISqlConnectionFactory _sqlConnectionFactory) : IServicoQueManipulaResgate
+public sealed class ServicoQueManipulaResgate(IConfiguracaoInfraWorkerService _configuracaoInfraWorkerService) : IServicoQueManipulaResgate
 {
     public async Task AdicionaAsync(Resgate resgate, CancellationToken cancellationToken)
     {
@@ -35,12 +36,12 @@ public sealed class ServicoQueManipulaResgate(ISqlConnectionFactory _sqlConnecti
             resgate.IdResgate,
             resgate.NmValor,
             resgate.NmValorImposto,
-            resgate.TxUsuario
+            _configuracaoInfraWorkerService.TxUsuario
         };
 
         try
         {
-            using var conn = _sqlConnectionFactory.CreateConnection();
+            using var conn = _configuracaoInfraWorkerService.CreateConnectionSqlServer();
             await conn.OpenAsync(cancellationToken);
             await conn.ExecuteAsync(new CommandDefinition(sql, listaDeParametro, cancellationToken: cancellationToken));
         }

@@ -3,11 +3,12 @@ using DN.LOG.LIBRARY.MODEL.EXCEPTION;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Indice;
+using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
 using System.Data;
 
 namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Consulta;
 
-public sealed class ServicoQueConsultaInvestimento(ISqlConnectionFactory sqlConnectionFactory) : IServicoQueConsultaInvestimento
+public sealed class ServicoQueConsultaInvestimento(IConfiguracaoInfraWorkerService sqlConnectionFactory) : IServicoQueConsultaInvestimento
 {
     public async Task<IEnumerable<Investimento>> ListaInvestimentoLiquidadoParaAdicaoDeResgateAsync(CancellationToken token)
     {
@@ -15,17 +16,17 @@ public sealed class ServicoQueConsultaInvestimento(ISqlConnectionFactory sqlConn
                                            I.CD_INVESTIMENTO,
                                            I.NM_VALORFINAL,
                                            I.NM_VALORIMPOSTO
-                                        FROM INVESTIMENTO I WITH (NOLOCK)
-                                        LEFT JOIN RESGATE R WITH (NOLOCK)
+                                        FROM [INVESTIMENTO] I WITH (NOLOCK)
+                                        LEFT JOIN [RESGATE] R WITH (NOLOCK)
                                           ON I.ID_INVESTIMENTO = R.ID_INVESTIMENTO
                                          AND I.CD_INVESTIMENTO = R.ID_RESGATE
                                        WHERE I.BO_LIQUIDADO = CAST(1 AS BIT)
                                          AND R.ID_INVESTIMENTO IS NULL
-                                         AND I.CD_INVESTIMENTO = (SELECT MAX(CD_INVESTIMENTO) FROM INVESTIMENTO WHERE ID_INVESTIMENTO = I.ID_INVESTIMENTO)";
+                                         AND I.CD_INVESTIMENTO = (SELECT MAX(CD_INVESTIMENTO) FROM INVESTIMENTO WITH (NOLOCK) WHERE ID_INVESTIMENTO = I.ID_INVESTIMENTO)";
 
         try
         {
-            using var conn = sqlConnectionFactory.CreateConnection();
+            using var conn = sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
 
             var listaDynamicInvestimento = await conn.QueryAsync(sql, new CommandDefinition(sql, cancellationToken: token));
@@ -74,14 +75,14 @@ public sealed class ServicoQueConsultaInvestimento(ISqlConnectionFactory sqlConn
                                     ON I.ID_INVESTIMENTO = P.ID_INVESTIMENTO
                                    AND I.CD_INVESTIMENTO = P.CD_INVESTIMENTO
                                    AND CAST(GETDATE() AS DATE) = P.DT_POSICAO
-                                 WHERE I.CD_INVESTIMENTO = (SELECT MAX(CD_INVESTIMENTO) FROM INVESTIMENTO WHERE I.ID_INVESTIMENTO = ID_INVESTIMENTO)
+                                 WHERE I.CD_INVESTIMENTO = (SELECT MAX(CD_INVESTIMENTO) FROM INVESTIMENTO WITH (NOLOCK) WHERE I.ID_INVESTIMENTO = ID_INVESTIMENTO)
                                    AND BO_LIQUIDADO = CAST(0 AS BIT)
                                    AND CAST(GETDATE() AS DATE) <= I.DT_FINAL
                                    AND P.ID_INVESTIMENTO IS NULL";
 
         try
         {
-            using var conn = sqlConnectionFactory.CreateConnection();
+            using var conn = sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
 
             var listaDynamicInvestimento = await conn.QueryAsync(sql, new CommandDefinition(sql, cancellationToken: token));
@@ -122,15 +123,15 @@ public sealed class ServicoQueConsultaInvestimento(ISqlConnectionFactory sqlConn
     public async Task<IEnumerable<Investimento>> ListaInvestimentoQueDeveSerLiquidadoPelaDataAsync(CancellationToken token)
     {
         const string sql = @"SELECT I.ID_INVESTIMENTO, 
-                                           I.CD_INVESTIMENTO,
-                                                I.DT_FINAL
-                                        FROM INVESTIMENTO I WITH (NOLOCK)
-                                       WHERE I.BO_LIQUIDADO = CAST(0 AS BIT)
-                                         AND CAST(GETDATE() AS DATE) > I.DT_FINAL";
+                                    I.CD_INVESTIMENTO,
+                                    I.DT_FINAL
+                               FROM [INVESTIMENTO] I WITH (NOLOCK)
+                              WHERE I.BO_LIQUIDADO = CAST(0 AS BIT)
+                                AND CAST(GETDATE() AS DATE) > I.DT_FINAL";
 
         try
         {
-            using var conn = sqlConnectionFactory.CreateConnection();
+            using var conn = sqlConnectionFactory.CreateConnectionSqlServer();
             await conn.OpenAsync(token);
 
             var listaDynamicInvestimento = await conn.QueryAsync(sql, new CommandDefinition(sql, cancellationToken: token));

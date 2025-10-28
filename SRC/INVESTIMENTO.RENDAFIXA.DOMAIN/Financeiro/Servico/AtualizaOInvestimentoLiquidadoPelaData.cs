@@ -25,7 +25,6 @@ public sealed class AtualizaOInvestimentoLiquidadoPelaData(ILogger<AtualizaOInve
         {
             try
             {
-                investimento.AtualizaUsuarioAtualizacao();
                 await _servicoQueManipulaInvestimento.AtualizaInvestimentoLiquidadoPelaDataAsync(investimento, token);
             }
             catch (Exception ex)
