@@ -1,4 +1,5 @@
 using INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
+using Serilog;
 using System.Reflection;
 
 var builder = Host.CreateApplicationBuilder(args);

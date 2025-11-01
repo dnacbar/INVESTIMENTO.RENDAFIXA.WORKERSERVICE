@@ -1,4 +1,5 @@
-﻿using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
+﻿using DN.LOG.LIBRARY.MODEL;
+using INVESTIMENTO.RENDAFIXA.CRONJOB.CronJob;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Feriado.BancoDeDados.Manipula;
@@ -16,6 +17,8 @@ using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Imposto.BancoDeDados.Consulta;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Juridico.BancoDeDados.Consulta;
 using Quartz;
+using Serilog;
+using System.Reflection;
 //using System.Security.Cryptography;
 //using System.Text;
 
@@ -44,6 +47,9 @@ public static class InjecaoDeDependencia
         //
         //    investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         //}
+
+        LogObjectExtension.ConfigureSerilog(configuracaoWorkerService.ElasticSearch);
+        builder.Services.AddSerilog();
 
         builder.Services.AddSingleton<IConfiguracaoDomainWorkerService>(x => { return configuracaoWorkerService; });
         builder.Services.AddSingleton<IConfiguracaoInfraWorkerService>(x => { return configuracaoWorkerService; });

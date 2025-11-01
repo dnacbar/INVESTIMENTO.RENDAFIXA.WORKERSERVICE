@@ -1,6 +1,7 @@
-﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
+﻿using DN.LOG.LIBRARY.MODEL;
+using INVESTIMENTO.RENDAFIXA.DOMAIN.Configuracao;
 using INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Configuracao;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace INVESTIMENTO.RENDAFIXA.CRONJOB.Configuracao;
 
@@ -9,14 +10,18 @@ internal sealed class ConfiguracaoWorkerService(
     CronJobAdicionaRendimento cronJobAdicionaRendimento,
     string cronJobLiquidaPelaData,
     string cronJobResgataLiquidado,
+    ElasticSearch elasticSearch,
     short tempoLimiteTransaction,
     string txUsuario) : IConfiguracaoDomainWorkerService, IConfiguracaoInfraWorkerService
 {
     public CronJobAdicionaRendimento CronJobAdicionaRendimento { get; } = cronJobAdicionaRendimento;
     public string CronJobLiquidaPelaData { get; } = cronJobLiquidaPelaData;
     public string CronJobResgataLiquidado { get; } = cronJobResgataLiquidado;
+    public ElasticSearch ElasticSearch { get; } = elasticSearch;
     public short TempoLimiteTransaction { get; } = tempoLimiteTransaction;
     public string TxUsuario { get; } = txUsuario;
+    
+
     public SqlConnection CreateConnectionSqlServer() => new(ConnectionString.DBRENDAFIXA);
 
     private ConnectionString ConnectionString { get; } = connectionString;
