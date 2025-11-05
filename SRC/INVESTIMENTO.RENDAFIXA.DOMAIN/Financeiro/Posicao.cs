@@ -45,7 +45,7 @@ public class Posicao
         DtPosicao = DateTime.Today;
     }
 
-    public ImpostoPosicao ImpostoPosicao { get; private set; } = new();
+    public PosicaoImposto ImpostoPosicao { get; private set; } = new();
     public Investimento Investimento { get; } = null!;
 
     public short IdPosicao { get; }
@@ -86,7 +86,7 @@ public class Posicao
             if (listaDeConfiguracaoImposto == null)
                 throw new DomainException($"Lista de configuração de imposto tem que ser preenchida!");
 
-            ImpostoPosicao = new ImpostoPosicao(this, listaDeConfiguracaoImposto);
+            ImpostoPosicao = new PosicaoImposto(this, listaDeConfiguracaoImposto);
 
             NmValorLiquido = NmValorBruto - ImpostoPosicao.NmValorImpostoIof - ImpostoPosicao.NmValorImpostoIrrf;
         }
@@ -118,7 +118,7 @@ public class Posicao
             if (listaDeConfiguracaoImposto == null)
                 throw new DomainException($"Lista de configuração de imposto tem que ser preenchida!");
 
-            ImpostoPosicao = new ImpostoPosicao(this, listaDeConfiguracaoImposto);
+            ImpostoPosicao = new PosicaoImposto(this, listaDeConfiguracaoImposto);
 
             NmValorLiquido = NmValorBruto - ImpostoPosicao.NmValorImpostoIof - ImpostoPosicao.NmValorImpostoIrrf;
         }

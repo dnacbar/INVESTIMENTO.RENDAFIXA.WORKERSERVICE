@@ -8,7 +8,7 @@ namespace INVESTIMENTO.RENDAFIXA.INFRASTRUCTURE.Financeiro.BancoDeDados.Manipula
 
 public sealed class ServicoQueManipulaPosicaoImpostoInvestimento(IConfiguracaoInfraWorkerService _configuracaoInfraWorkerService) : IServicoQueManipulaPosicaoImpostoInvestimento
 {
-    public async Task AdicionaPosicaoImpostoInvestimentoAsync(ImpostoPosicao posicaoImposto, CancellationToken token)
+    public async Task AdicionaPosicaoImpostoInvestimentoAsync(PosicaoImposto posicaoImposto, CancellationToken token)
     {
         const string sql = @"INSERT POSICAOIMPOSTO
                                ([ID_INVESTIMENTO]   

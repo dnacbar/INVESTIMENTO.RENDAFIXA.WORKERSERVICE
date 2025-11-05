@@ -48,8 +48,12 @@ public static class InjecaoDeDependencia
         //    investimentoRendaFixaWorkerService = System.Text.Json.JsonSerializer.Deserialize<InvestimentoRendaFixaWorkerService>(Encoding.UTF8.GetString(plainBytes)) ?? throw new CryptographicException("ERRO AO DESCRIPTOGRAFAR OS PARÂMETROS INICIAS DA APLICAÇÃO!");
         //}
 
-        LogObjectExtension.ConfigureSerilog(configuracaoWorkerService.ElasticSearch);
-        builder.Services.AddSerilog();
+        try
+        {
+            LogObjectExtension.ConfigureSerilog(configuracaoWorkerService.ElasticSearch);
+            builder.Services.AddSerilog();
+        }
+        catch { }
 
         builder.Services.AddSingleton<IConfiguracaoDomainWorkerService>(x => { return configuracaoWorkerService; });
         builder.Services.AddSingleton<IConfiguracaoInfraWorkerService>(x => { return configuracaoWorkerService; });

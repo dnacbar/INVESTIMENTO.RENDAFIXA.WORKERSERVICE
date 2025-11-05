@@ -4,10 +4,10 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
 
-public class ImpostoPosicao
+public class PosicaoImposto
 {
-    public ImpostoPosicao() { }
-    public ImpostoPosicao(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
+    public PosicaoImposto() { }
+    public PosicaoImposto(Posicao posicao, IEnumerable<ConfiguracaoImposto> listaDeConfiguracaoImposto)
     {
         Posicao = posicao;
         ListaDeConfiguracaoImposto = listaDeConfiguracaoImposto;
