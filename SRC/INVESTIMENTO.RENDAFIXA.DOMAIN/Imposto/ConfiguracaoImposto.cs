@@ -3,12 +3,12 @@ using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
 
-public class ConfiguracaoImposto(byte idImposto, byte idConfiguracaoImposto, decimal nmRendimento, short nmDiasUteis) : Imposto(idImposto)
+public class ConfiguracaoImposto(byte idImposto, byte idConfiguracaoImposto, decimal nmRendimento, short nmDiasCorridos) : Imposto(idImposto)
 {
     public new byte IdImposto { get; } = idImposto;
     public byte IdConfiguracaoImposto { get; } = idConfiguracaoImposto;
     public decimal NmRendimento { get; } = nmRendimento;
-    public short NmDiasUteis { get; } = nmDiasUteis;
+    public short NmDiasCorridos { get; } = nmDiasCorridos;
 }
 
 public static class ConfiguracaoImpostoExtension
@@ -17,9 +17,9 @@ public static class ConfiguracaoImpostoExtension
     {
         var listaDeImpostoFiltrada = listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Iof);
 
-        return posicaoDiaUtil >= Iof.DiasUteisParaIsencao
-            ? listaDeImpostoFiltrada.MaxBy(x => x.NmDiasUteis) ?? throw new DomainException($"Configuração de IOF não encontrada.")
-            : listaDeImpostoFiltrada.FirstOrDefault(x => x.NmDiasUteis == posicaoDiaUtil) ?? throw new DomainException($"Configuração de IOF não encontrada para {posicaoDiaUtil} dias úteis.");
+        return posicaoDiaUtil >= Iof.DiasCorridosParaIsencao
+            ? listaDeImpostoFiltrada.MaxBy(x => x.NmDiasCorridos) ?? throw new DomainException($"Configuração de IOF não encontrada.")
+            : listaDeImpostoFiltrada.FirstOrDefault(x => x.NmDiasCorridos == posicaoDiaUtil) ?? throw new DomainException($"Configuração de IOF não encontrada para {posicaoDiaUtil} dias úteis.");
     }
 
     public static ConfiguracaoImposto ObtemIrrf(this IEnumerable<ConfiguracaoImposto> listaDeImposto, int posicaoDiaUtil)
@@ -27,7 +27,7 @@ public static class ConfiguracaoImpostoExtension
         var listaDeImpostoFiltrada = listaDeImposto.Where(x => (EnumTipoImposto)x.IdImposto == EnumTipoImposto.Irrf);
 
         return posicaoDiaUtil >= Irrf.DiasUteisParaMenorAliquota
-            ? listaDeImpostoFiltrada.MaxBy(x => x.NmDiasUteis) ?? throw new DomainException("Configuração de IRRF não encontrada")
-            : listaDeImpostoFiltrada.FirstOrDefault(x => posicaoDiaUtil <= x.NmDiasUteis) ?? throw new DomainException($"Configuração de IRRF não encontrada para {posicaoDiaUtil} dias úteis.");
+            ? listaDeImpostoFiltrada.MaxBy(x => x.NmDiasCorridos) ?? throw new DomainException("Configuração de IRRF não encontrada")
+            : listaDeImpostoFiltrada.FirstOrDefault(x => posicaoDiaUtil <= x.NmDiasCorridos) ?? throw new DomainException($"Configuração de IRRF não encontrada para {posicaoDiaUtil} dias úteis.");
     }
 }

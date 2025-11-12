@@ -1,5 +1,4 @@
 ﻿using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto;
-using INVESTIMENTO.RENDAFIXA.DOMAIN.DataHora.Servico;
 using INVESTIMENTO.RENDAFIXA.DOMAIN.Imposto.Enum;
 
 namespace INVESTIMENTO.RENDAFIXA.DOMAIN.Financeiro;
@@ -12,12 +11,12 @@ public class PosicaoImposto
         Posicao = posicao;
         ListaDeConfiguracaoImposto = listaDeConfiguracaoImposto;
 
-        var quantidadeDeDiasUteis = Posicao.Investimento.DtInicial.Date.CalculaDiaUtilEntreDatas(DateTime.Today);
+        var quantidadeDeDiasCorridos = (DateTime.Today - Posicao.Investimento.DtInicial.Date).Days;  
 
         if (Posicao.Investimento.VerificaSeCalculaIof())
         {
-            NmValorImpostoIof = Posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
-            NmValorImpostoIrrf = (Posicao.NmValorBruto - NmValorImpostoIof) * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
+            NmValorImpostoIof = Posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIof(ListaDeConfiguracaoImposto, quantidadeDeDiasCorridos).NmRendimento / 100);
+            NmValorImpostoIrrf = (Posicao.NmValorBruto - NmValorImpostoIof) * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasCorridos).NmRendimento / 100);
 
             ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Iof, NmValorImpostoIof));
             ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Irrf, NmValorImpostoIrrf));
@@ -25,7 +24,7 @@ public class PosicaoImposto
             return;
         }
 
-        NmValorImpostoIrrf = Posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasUteis).NmRendimento / 100);
+        NmValorImpostoIrrf = Posicao.NmValorBruto * (ConfiguracaoImpostoExtension.ObtemIrrf(ListaDeConfiguracaoImposto, quantidadeDeDiasCorridos).NmRendimento / 100);
 
         ListaDeImpostoCalculadoPorTipo.Add((EnumTipoImposto.Irrf, NmValorImpostoIrrf));
     }
