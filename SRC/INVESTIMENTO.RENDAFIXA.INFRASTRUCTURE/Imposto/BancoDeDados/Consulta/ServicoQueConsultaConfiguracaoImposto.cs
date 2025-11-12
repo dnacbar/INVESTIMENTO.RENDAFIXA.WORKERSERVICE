@@ -14,7 +14,7 @@ public sealed class ServicoQueConsultaConfiguracaoImposto(IConfiguracaoInfraWork
         const string sql = @"SELECT I.[ID_IMPOSTO]
                                    ,[ID_CONFIGURACAOIMPOSTO]
                                    ,[NM_RENDIMENTO]
-                                   ,[NM_DIASCO]
+                                   ,[NM_DIASCORRIDOS]
                                FROM [IMPOSTO] I WITH (NOLOCK)
                               INNER JOIN [CONFIGURACAOIMPOSTO] CI
                                  ON I.ID_IMPOSTO = CI.ID_IMPOSTO";
